@@ -1,33 +1,34 @@
-import { Hono } from 'hono';
+import { Hono } from "hono";
+
+import blogs from "./routes/blogs";
+
 // Create the main Hono app
-const app = new Hono();
 
-app.post('/api/v1/signup', (c) => {
-  return c.text('signup route')
+const app = new Hono<{
+  Bindings: {
+    DATABASE_URL: string,
+    JWT_SECRET: string,
+  };
+  Variables: {
+    userId: string
+  }
+}>();
+
+
+app.use('/api/v1/signup', async (c, next) => {
+  console.log('middleware 1 start')
+  await next()
+  console.log('middleware 1 end')
 })
 
-app.post('/api/v1/signin', (c) => {
-  return c.text('signin route')
-})
-
-app.get('/api/v1/blog/:id', (c) => {
-  const id = c.req.param('id')
-  console.log(id);
-  return c.text('get blog route')
-})
-
-app.get('/', (c) => {
-  return c.text('Welcome Home route')
-})
 
 
-app.post('/api/v1/blog', (c) => {
+app.route("/api/v1", blogs)
+app.route("/api/v1/blog", blogs)
 
-  return c.text('signin route')
-})
 
-app.put('/api/v1/blog', (c) => {
-  return c.text('signin route')
-})
+
+
+
 
 export default app;

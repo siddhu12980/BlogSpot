@@ -1,6 +1,7 @@
 # prod
 dist/
-
+node_modules
+.env
 # dev
 .yarn/
 !.yarn/releases
