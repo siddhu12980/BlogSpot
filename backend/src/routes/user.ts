@@ -62,6 +62,7 @@ user.post("/signin", async (c) => {
                 email: body.email,
                 password: body.password,
             },
+            cacheStrategy: { swr: 60, ttl: 60 },
         });
 
         if (!user) {

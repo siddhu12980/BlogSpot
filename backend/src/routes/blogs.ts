@@ -1,47 +1,57 @@
-import { PrismaClient } from "@prisma/client/extension";
+import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 
-
 const blogs = new Hono<{
     Bindings: {
-        DATABASE_URL: string,
-        JWT_SECRET: string,
+        DATABASE_URL: string;
+        JWT_SECRET: string;
     };
     Variables: {
-        userId: string
-    }
+        userId: string;
+        prisma: PrismaClient;
+    };
 }>();
 
-blogs.get("/:id", (c) => {
-    const id = c.req.param("id");
-    console.log(c.get('userId'))
-    console.log(id);
-    return c.text("get blog route");
+blogs.get("/:id", async (c) => {
+    try {
+        const id = c.req.param("id");
+        console.log(id)
+        console.log(c.get("userId"));
+
+        const prisma = c.get("prisma");
+
+        const blog = await prisma.post.findUnique({
+            where: {
+                authorId: c.get("userId"),
+                id: (id).toString(),
+            },
+            cacheStrategy: { swr: 60 * 3, ttl: 60 },
+
+        })
+
+        if (!blog) {
+            return c.json({ error: "No blog found" })
+        }
+
+
+        return c.json({ blog });
+
+    }
+    catch (e: any) {
+        c.json({
+            error: e.message
+        })
+    }
+
+
 });
-
-
-// model Post {
-//     id        String  @id @default(uuid())
-//     title     String
-//     content   String
-//     published Boolean @default(false)
-//     author    User    @relation(fields: [authorId], references: [id])
-//     authorId  String
-//   }
-
 
 blogs.post("/", async (c) => {
     try {
-        console.log("===============")
+        const prisma = c.get("prisma");
 
-        const prisma = await new PrismaClient({
-            datasourceUrl: c.env?.DATABASE_URL,
-        }).$extends(withAccelerate());
-        console.log("===============")
-
-
-        const authorId = c.get('userId')
+        const authorId = c.get("userId");
 
         const body = await c.req.json();
 
@@ -50,26 +60,67 @@ blogs.post("/", async (c) => {
                 title: body.title,
                 content: body.content,
                 published: body.published,
-                authorId
+                authorId,
             },
         });
 
-        return c.json({ blog })
+        return c.json({ blog });
+    } catch (e: any) {
+        return c.json({ error: e.message });
+    }
+});
+
+blogs.get("/", async (c) => {
+    try {
+        const prisma = c.get("prisma");
+
+        const blogs = await prisma.post.findMany({
+            where: {
+                authorId: c.get("userId"),
+            },
+        });
+
+        return c.json({ blogs });
+    } catch (e: any) {
+        return c.json({ error: e.message });
+    }
+
+
+
+});
+
+blogs.put("/", async (c) => {
+    try {
+        const prisma = c.get("prisma")
+
+        const body = await c.req.json();
+
+        const blog = await prisma.post.update({
+            where: {
+                id: body.id,
+                authorId: c.get("userId"),
+            },
+            data: {
+                title: body.title,
+                content: body.content,
+                published: body.published,
+            },
+        });
+
+        if (!blog) {
+            return c.json({ error: "No blog found" })
+        }
+
+        return c.json({ blog });
+
 
     }
     catch (e: any) {
-        return c.json({ error: e.message });
-
-
+        return c.json({ error: e.message })
     }
-
-
-
 });
 
-blogs.put("/blog", (c) => {
-    return c.text("signin route");
-});
+
 
 
 export default blogs;
