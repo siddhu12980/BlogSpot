@@ -1,29 +1,24 @@
 import { Hono } from "hono";
 
 import blogs from "./routes/blogs";
-
-// Create the main Hono app
+import user from "./routes/user";
+import auth_middleware from "./middelwares/auth_middelware";
 
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string,
     JWT_SECRET: string,
   };
+
   Variables: {
-    userId: string
+    userId: string,
   }
 }>();
 
 
-app.use('/api/v1/signup', async (c, next) => {
-  console.log('middleware 1 start')
-  await next()
-  console.log('middleware 1 end')
-})
 
-
-
-app.route("/api/v1", blogs)
+app.use("/api/v1/blogs/*", auth_middleware)
+app.route("/api/v1/user", user)
 app.route("/api/v1/blog", blogs)
 
 
