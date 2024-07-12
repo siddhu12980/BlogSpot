@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
-
+import { signupInput } from "@sidd123/common";
 
 const user = new Hono<{
     Bindings: {
@@ -11,16 +11,22 @@ const user = new Hono<{
     };
     Variables: {
         userId: string
+        prisma: PrismaClient
     }
 }>();
 
 user.post("/signup", async (c) => {
     try {
-        const prisma = new PrismaClient({
-            datasourceUrl: c.env?.DATABASE_URL,
-        }).$extends(withAccelerate());
+        const prisma = c.get("prisma")
 
         const body = await c.req.json();
+
+        const { success } = signupInput.safeParse(body);
+
+        if (!success) {
+            return c.json({ error: "Type Validation Failed" });
+
+        }
 
         // const hashedPassword = await bcrypt.hash(body.password, 10);
 
@@ -52,17 +58,20 @@ user.post("/signin", async (c) => {
     try {
         const body = await c.req.json();
 
-        const prisma = new PrismaClient({
-            datasourceUrl: c.env?.DATABASE_URL,
-        }).$extends(withAccelerate());
+        const { success } = signupInput.safeParse(body);
+
+        if (!success) {
+            return c.json({ error: "Type Validation Failed" });
+
+        }
 
 
+        const prisma = c.get("prisma")
         const user = await prisma.user.findUnique({
             where: {
                 email: body.email,
                 password: body.password,
             },
-            cacheStrategy: { swr: 60, ttl: 60 },
         });
 
         if (!user) {

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
+import { createPostInput, updatePostInput } from "@sidd123/common";
 import { Hono } from "hono";
 
 const blogs = new Hono<{
@@ -26,7 +27,7 @@ blogs.get("/:id", async (c) => {
                 authorId: c.get("userId"),
                 id: (id).toString(),
             },
-            cacheStrategy: { swr: 60 * 3, ttl: 60 },
+            // cacheStrategy: { swr: 60 * 3, ttl: 60 },
 
         })
 
@@ -50,10 +51,15 @@ blogs.get("/:id", async (c) => {
 blogs.post("/", async (c) => {
     try {
         const prisma = c.get("prisma");
-
         const authorId = c.get("userId");
 
         const body = await c.req.json();
+
+        const { success } = createPostInput.safeParse(body);
+
+        if (!success) {
+            return c.json({ error: " Post Type Validation Failed" });
+        }
 
         const blog = await prisma.post.create({
             data: {
@@ -95,6 +101,12 @@ blogs.put("/", async (c) => {
 
         const body = await c.req.json();
 
+        const { success } = updatePostInput.safeParse(body);
+
+        if (!success) {
+            return c.json({ error: "Update Post Type Validation Failed" });
+
+        }
         const blog = await prisma.post.update({
             where: {
                 id: body.id,
