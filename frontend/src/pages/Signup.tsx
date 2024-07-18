@@ -173,6 +173,7 @@ const Signup = () => {
                     onChange={handleChange}
                   />
                 </div>
+
                 <div className="ml-3 text-sm">
                   <label htmlFor="terms" className="font-dark text-gray-800">
                     I accept the{" "}
