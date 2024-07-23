@@ -4,6 +4,65 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
 import SearchBar from "../components/SearchBar";
 import BlogFeedItem from "../components/BlogFeedItem";
+import { FaPlus } from "react-icons/fa";
+import BlogSidebar from "../components/BlogSidebar";
+import RecommendedTopics from "../components/RecommendedTopics";
+import MediumModal from "../components/MediumModal";
+import WriterSuggest from "../components/WriterSuggest";
+
+const sampleData = [
+  {
+    name: "Andrew Zuo",
+    imageUrl: "https://example.com/andrew-zuo.jpg",
+    description: "https://stratum.web.app",
+    link: "https://stratum.web.app",
+    isPublication: false,
+    onFollow: () => {
+      console.log("Followed Andrew Zuo");
+    },
+  },
+  {
+    name: "Management Matters",
+    imageUrl: "https://example.com/management-matters.png",
+    description: "There's plenty out there for the C-suite. What about the...",
+    link: "https://example.com/management-matters",
+    isPublication: true,
+    onFollow: () => {
+      console.log("Followed Management Matters");
+    },
+  },
+  {
+    name: "Avi Siegel",
+    imageUrl: "https://example.com/avi-siegel.jpg",
+    description: "Applying real-world perspective to product...",
+    link: "https://example.com/avi-siegel",
+    isPublication: false,
+    onFollow: () => {
+      console.log("Followed Avi Siegel");
+    },
+  },
+  {
+    name: "Sarah Jones",
+    imageUrl: "https://example.com/sarah-jones.jpg",
+    description: "Marketing expert with a passion for data-driven results.",
+    link: "https://example.com/sarah-jones",
+    isPublication: false,
+    onFollow: () => {
+      console.log("Followed Sarah Jones");
+    },
+  },
+  {
+    name: "Tech Trends",
+    imageUrl: "https://example.com/tech-trends.png",
+    description: "Stay up-to-date with the latest in technology.",
+    link: "https://example.com/tech-trends",
+    isPublication: true,
+    onFollow: () => {
+      console.log("Followed Tech Trends");
+    },
+  },
+];
+
 export const Homepage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -65,6 +124,9 @@ export const Homepage = () => {
           <div className="py-5">
             <nav className="bg-white text-sm font-normal text-black p-2 sticky top-0">
               <ul className="flex justify-evenly">
+                <li>
+                  <FaPlus />
+                </li>
                 <li>For you</li>
                 <li>Following</li>
                 <li>Startup</li>
@@ -81,7 +143,45 @@ export const Homepage = () => {
 
         {/* Extra div, hidden on small screens */}
         <div className="bg-slate-300 py-5 h-screen w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
-          Extra
+          <div className="flex flex-col">
+            <div>
+              <h1>Top Blogs</h1>
+              <div>
+                <BlogSidebar
+                  username="John Doe"
+                  book="The Great Gatsby"
+                  title="My Blog Post is the best blog post in the world"
+                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                />
+                <BlogSidebar
+                  username="John Doe"
+                  book="The Great Gatsby"
+                  title="My Blog Post is the best blog post in the world"
+                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                />
+                <BlogSidebar
+                  username="John Doe"
+                  book="The Great Gatsby"
+                  title="My Blog Post is the best blog post in the world"
+                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="py-4">
+            <MediumModal />
+          </div>
+
+          <div>
+            <RecommendedTopics />
+          </div>
+
+          <div>
+            <WriterSuggest suggestions={sampleData} />
+          </div>
+
+          <div>Suggestion </div>
         </div>
       </div>
     </>
