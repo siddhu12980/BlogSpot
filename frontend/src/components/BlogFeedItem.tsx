@@ -4,8 +4,8 @@ import {
   FaComment,
   FaThumbsDown,
   FaSave,
-  FaEllipsisV,
 } from "react-icons/fa";
+import DropMenu from "./DropMenu";
 
 const BlogFeedItem = () => {
   return (
@@ -13,7 +13,7 @@ const BlogFeedItem = () => {
       {/* User Profile Pic and Username */}
       <div className="flex items-center mb-2">
         <img
-          src="https://via.placeholder.com/50"
+          src="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
           alt="User Profile Pic"
           className="w-10 h-10 rounded-full mr-2"
         />
@@ -31,25 +31,22 @@ const BlogFeedItem = () => {
             amet nulla auctor, vestibulum magna sed, convallis ex.
           </p>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-2">
-            <span className="text-sm text-gray-600 mb-2 lg:mb-0">
-              Published on 2022-01-01
-            </span>
-            <div className="flex items-center justify-between w-full lg:w-auto">
-              <div className="flex items-center">
-                <FaStar size={18} className="text-gray-600 mr-2" />
-                <FaThumbsUp size={18} className="text-gray-600 mr-2" />
-                <FaComment size={18} className="text-gray-600 mr-2" />
-              </div>
-              <div className="flex items-center">
-                <FaThumbsDown size={18} className="text-gray-600 mr-2" />
-                <FaSave size={18} className="text-gray-600 mr-2" />
-                <FaEllipsisV size={18} className="text-gray-600" />
-              </div>
+            <div className="flex flex-1 items-center mb-2 lg:mb-0">
+              <span className="text-sm text-gray-600 mr-2">2022-01-01</span>
+              <FaStar size={18} className="text-gray-600 mr-2" />
+              <FaThumbsUp size={18} className="text-gray-600 mr-2" />
+              <FaComment size={18} className="text-gray-600 mr-2" />
+            </div>
+
+            <div className="flex items-center flex-shrink-0">
+              <FaThumbsDown size={18} className="text-gray-600 mr-2" />
+              <FaSave size={18} className="text-gray-600 mr-2" />
+              <DropMenu />
             </div>
           </div>
         </div>
         <img
-          src="https://via.placeholder.com/100"
+          src="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
           alt="Blog Image"
           className="lg:w-2/5 w-full h-40 lg:h-20 rounded-md object-cover"
         />

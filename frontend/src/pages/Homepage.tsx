@@ -9,11 +9,12 @@ import BlogSidebar from "../components/BlogSidebar";
 import RecommendedTopics from "../components/RecommendedTopics";
 import MediumModal from "../components/MediumModal";
 import WriterSuggest from "../components/WriterSuggest";
-
+import DropMenu from "../components/DropMenu";
 const sampleData = [
   {
     name: "Andrew Zuo",
-    imageUrl: "https://example.com/andrew-zuo.jpg",
+    imageUrl:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     description: "https://stratum.web.app",
     link: "https://stratum.web.app",
     isPublication: false,
@@ -23,7 +24,8 @@ const sampleData = [
   },
   {
     name: "Management Matters",
-    imageUrl: "https://example.com/management-matters.png",
+    imageUrl:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     description: "There's plenty out there for the C-suite. What about the...",
     link: "https://example.com/management-matters",
     isPublication: true,
@@ -33,7 +35,8 @@ const sampleData = [
   },
   {
     name: "Avi Siegel",
-    imageUrl: "https://example.com/avi-siegel.jpg",
+    imageUrl:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     description: "Applying real-world perspective to product...",
     link: "https://example.com/avi-siegel",
     isPublication: false,
@@ -43,7 +46,8 @@ const sampleData = [
   },
   {
     name: "Sarah Jones",
-    imageUrl: "https://example.com/sarah-jones.jpg",
+    imageUrl:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     description: "Marketing expert with a passion for data-driven results.",
     link: "https://example.com/sarah-jones",
     isPublication: false,
@@ -53,7 +57,8 @@ const sampleData = [
   },
   {
     name: "Tech Trends",
-    imageUrl: "https://example.com/tech-trends.png",
+    imageUrl:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     description: "Stay up-to-date with the latest in technology.",
     link: "https://example.com/tech-trends",
     isPublication: true,
@@ -118,9 +123,9 @@ export const Homepage = () => {
         </nav>
       </div>
 
-      <div className="h-screen w-full bg-white flex flex-col lg:flex-row justify-center items-start">
+      <div className=" w-full bg-white flex flex-col lg:flex-row justify-center items-start">
         {/* Blog div, visible on all screens */}
-        <div className="bg-slate-200 h-screen w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
+        <div className="bg-slate-200 h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
           <div className="py-5">
             <nav className="bg-white text-sm font-normal text-black p-2 sticky top-0">
               <ul className="flex justify-evenly">
@@ -138,11 +143,13 @@ export const Homepage = () => {
 
           <div className="items-end">
             <BlogFeedItem />
+            <BlogFeedItem />
+            <BlogFeedItem />
           </div>
         </div>
 
         {/* Extra div, hidden on small screens */}
-        <div className="bg-slate-300 py-5 h-screen w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
+        <div className="bg-slate-300 py-5  w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
           <div className="flex flex-col">
             <div>
               <h1>Top Blogs</h1>
@@ -180,8 +187,6 @@ export const Homepage = () => {
           <div>
             <WriterSuggest suggestions={sampleData} />
           </div>
-
-          <div>Suggestion </div>
         </div>
       </div>
     </>
