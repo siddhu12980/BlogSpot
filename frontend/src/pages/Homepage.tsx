@@ -9,7 +9,6 @@ import BlogSidebar from "../components/BlogSidebar";
 import RecommendedTopics from "../components/RecommendedTopics";
 import MediumModal from "../components/MediumModal";
 import WriterSuggest from "../components/WriterSuggest";
-import DropMenu from "../components/DropMenu";
 const sampleData = [
   {
     name: "Andrew Zuo",
@@ -98,7 +97,7 @@ export const Homepage = () => {
   return (
     <>
       <div>
-        <nav className="bg-slate-100 text-black p-2 sticky top-0">
+        <nav className="bg-white text-black p-2 sticky top-0">
           <div className="flex justify-between">
             <div className=" font-extrabold flex text-2xl">
               <div className="pt-3.5">BlogSpot </div>
@@ -122,10 +121,9 @@ export const Homepage = () => {
           </div>
         </nav>
       </div>
-
-      <div className=" w-full bg-white flex flex-col lg:flex-row justify-center items-start">
+      <div className=" w-full bg-white   flex flex-col lg:flex-row justify-center items-start">
         {/* Blog div, visible on all screens */}
-        <div className="bg-slate-200 h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
+        <div className="bg-white h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
           <div className="py-5">
             <nav className="bg-white text-sm font-normal text-black p-2 sticky top-0">
               <ul className="flex justify-evenly">
@@ -149,7 +147,7 @@ export const Homepage = () => {
         </div>
 
         {/* Extra div, hidden on small screens */}
-        <div className="bg-slate-300 py-5  w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
+        <div className="bg-white py-5  w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
           <div className="flex flex-col">
             <div>
               <h1>Top Blogs</h1>

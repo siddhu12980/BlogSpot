@@ -9,7 +9,7 @@ import DropMenu from "./DropMenu";
 
 const BlogFeedItem = () => {
   return (
-    <div className="flex flex-col mb-4 p-4 bg-white shadow-md rounded-md">
+    <div className="flex flex-col mb-4 p-4 bg-white  ">
       {/* User Profile Pic and Username */}
       <div className="flex items-center mb-2">
         <img

@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { PrismaClient } from '@prisma/client/edge'
-import { withAccelerate } from '@prisma/extension-accelerate'
 
 const all = new Hono<{
     Bindings: {
@@ -18,7 +17,6 @@ all.get('/api/v1/all', async (c) => {
     const prisma = c.get('prisma');
 
     const posts = await prisma.post.findMany({
-        cacheStrategy: { swr: 60 * 3, ttl: 60 },
     });
 
 

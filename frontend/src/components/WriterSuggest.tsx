@@ -59,7 +59,7 @@ const WriterSuggest = ({
   };
 
   return (
-    <div className="p-4 bg-white rounded-md shadow-md">
+    <div className="p-4 bg-white bg-opacity-45 ">
       <h2 className="text-xl font-bold mb-4">Who to follow</h2>
       {suggestions.map((suggestion) => (
         <SuggestionCard
@@ -68,7 +68,7 @@ const WriterSuggest = ({
           onFollow={() => handleFollow(suggestion.name)}
         />
       ))}
-      <button className="mt-4 px-4 py-2 text-blue-500 bg-gray-100 rounded-md">
+      <button className="mt-4 px-4 py-2 text-blue-500 bg-gray-100  rounded-md">
         See more suggestions
       </button>
     </div>

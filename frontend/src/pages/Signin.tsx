@@ -37,6 +37,7 @@ const Signin = () => {
     } else {
       // Handle successful form submission (e.g., send data to the server)
       console.log("Form submitted successfully", formData);
+
       // Reset form
       setFormData({
         email: "",

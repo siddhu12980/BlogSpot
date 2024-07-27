@@ -48,6 +48,32 @@ const Signup = () => {
     } else {
       // Handle successful form submission (e.g., send data to the server)
       console.log("Form submitted successfully", formData);
+
+      fetch(
+        "http://localhost:8787/corsproxy/?apiurl=http://localhost:8787/api/v1/user/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      )
+        .then((response) => {
+          console.log(response);
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data);
+          const { token } = data;
+          localStorage.setItem("token", token);
+        });
+
       // Reset form
       setFormData({
         username: "",
