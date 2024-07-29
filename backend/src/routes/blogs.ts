@@ -32,17 +32,17 @@ blogs.get("/:id", async (c) => {
         })
 
         if (!blog) {
-            return c.json({ error: "No blog found" })
+            return c.json({ error: "No blog found" }, 404);
         }
 
 
-        return c.json({ blog });
+        return c.json({ blog }, 200);
 
     }
     catch (e: any) {
         c.json({
             error: e.message
-        })
+        }, 501);
     }
 
 
@@ -58,7 +58,7 @@ blogs.post("/", async (c) => {
         const { success } = createPostInput.safeParse(body);
 
         if (!success) {
-            return c.json({ error: " Post Type Validation Failed" });
+            return c.json({ error: " Post Type Validation Failed" }, 400);
         }
 
         const blog = await prisma.post.create({
@@ -70,9 +70,9 @@ blogs.post("/", async (c) => {
             },
         });
 
-        return c.json({ blog });
+        return c.json({ blog }, 200);
     } catch (e: any) {
-        return c.json({ error: e.message });
+        return c.json({ error: e.message }, 501);
     }
 });
 
@@ -86,9 +86,9 @@ blogs.get("/", async (c) => {
             },
         });
 
-        return c.json({ blogs });
+        return c.json({ blogs }, 200);
     } catch (e: any) {
-        return c.json({ error: e.message });
+        return c.json({ error: e.message }, 501);
     }
 
 
@@ -104,7 +104,7 @@ blogs.put("/", async (c) => {
         const { success } = updatePostInput.safeParse(body);
 
         if (!success) {
-            return c.json({ error: "Update Post Type Validation Failed" });
+            return c.json({ error: "Update Post Type Validation Failed" }, 400);
 
         }
         const blog = await prisma.post.update({
@@ -120,15 +120,15 @@ blogs.put("/", async (c) => {
         });
 
         if (!blog) {
-            return c.json({ error: "No blog found" })
+            return c.json({ error: "No blog found" }, 404);
         }
 
-        return c.json({ blog });
+        return c.json({ blog }, 200);
 
 
     }
     catch (e: any) {
-        return c.json({ error: e.message })
+        return c.json({ error: e.message }, 501);
     }
 });
 

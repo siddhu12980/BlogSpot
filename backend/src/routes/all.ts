@@ -13,12 +13,19 @@ const all = new Hono<{
 }>();
 
 
-all.get('/api/v1/all', async (c) => {
-    const prisma = c.get('prisma');
+all.get('/', async (c) => {
+    try {
 
-    const posts = await prisma.post.findMany({
-    });
+        const prisma = c.get('prisma');
+        const posts = await prisma.post.findMany({
+        });
 
 
-    return c.json(posts);
+        return c.json(posts, 200);
+    }
+    catch (e: any) {
+        return c.json({ error: e.message }, 501);
+    }
 })
+
+export default all;

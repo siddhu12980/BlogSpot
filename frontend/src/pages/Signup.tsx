@@ -35,8 +35,6 @@ const Signup = () => {
     if (!formData.password) errors.password = "Password is required";
     if (formData.password !== formData.confirmPassword)
       errors.confirmPassword = "Passwords do not match";
-    if (!formData.termsAccepted)
-      errors.termsAccepted = "You must accept the terms and conditions";
     return errors;
   };
 
@@ -50,30 +48,52 @@ const Signup = () => {
       console.log("Form submitted successfully", formData);
 
       fetch(
-        "http://localhost:8787/corsproxy/?apiurl=http://localhost:8787/api/v1/user/signup",
+        "http://localhost:8787/corsproxy/?apiurl=https://backend.juugi202316701.workers.dev/api/v1/user/signup",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
           },
           body: JSON.stringify({
-            username: formData.username,
+            name: formData.username,
             email: formData.email,
             password: formData.password,
           }),
         }
       )
-        .then((response) => {
-          console.log(response);
-          return response.json();
+        .then(async (response) => {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            const data = await response.json().catch((err) => {
+              throw new Error(`Failed to parse JSON: ${err.message}`);
+            });
+            return { data, status: response.status };
+          } else {
+            const text = await response.text();
+            throw new Error(
+              `Unexpected response content type: ${contentType}. Response: ${text}`
+            );
+          }
         })
-        .then((data) => {
-          console.log(data);
-          const { token } = data;
-          localStorage.setItem("token", token);
-        });
+        .then(({ data, status }) => {
+          if (status !== 200) {
+            throw new Error(data.error || "Unknown error occurred");
+          }
+          console.log("Login successful", data);
 
+          // Set the token as a cookie
+          document.cookie = `token=${data.token}; path=/; secure; samesite=strict`;
+
+          if (data.token) {
+            window.location.href = "/home";
+          }
+          // Redirect to the user's dashboard or another page on successful login
+        })
+
+        .catch((error) => {
+          console.error("Error:", error);
+          // Handle error (e.g., display an error message to the user)
+        });
       // Reset form
       setFormData({
         username: "",

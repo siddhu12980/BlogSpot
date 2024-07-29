@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { CgProfile } from "react-icons/cg";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
@@ -9,6 +9,7 @@ import BlogSidebar from "../components/BlogSidebar";
 import RecommendedTopics from "../components/RecommendedTopics";
 import MediumModal from "../components/MediumModal";
 import WriterSuggest from "../components/WriterSuggest";
+
 const sampleData = [
   {
     name: "Andrew Zuo",
@@ -68,6 +69,21 @@ const sampleData = [
 ];
 
 export const Homepage = () => {
+  useEffect(() => {
+    fetch(
+      "http://localhost:8787/corsproxy/?apiurl=http://localhost:8787/api/v1/all",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error("Error:", error));
+  });
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   //   const [textareaHeight, setTextareaHeight] = useState("auto");

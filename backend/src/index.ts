@@ -6,6 +6,7 @@ import type { JWTPayload } from 'hono/utils/jwt/types';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { createMiddleware } from "hono/factory";
+import all from "./routes/all";
 
 
 const app = new Hono<{
@@ -61,7 +62,7 @@ app.use("/api/v1/blog/*", async (c, next) => {
 
 app.route("/api/v1/user", user)
 app.route("/api/v1/blog", blogs)
-app.route("/api/v1/all", blogs)
+app.route("/api/v1/all", all)
 
 
 const corsHeaders = {
@@ -72,18 +73,28 @@ const corsHeaders = {
 };
 
 const handleRequest = async (c: any) => {
+
   const url = new URL(c.req.url);
   const apiUrl = url.searchParams.get("apiurl");
+
+  console.log(apiUrl);
 
   if (!apiUrl) {
     return c.text("Missing apiurl parameter", 400);
   }
 
+  const requestBody = await c.req.arrayBuffer();
+
   const request = new Request(apiUrl, {
     method: c.req.method,
     headers: c.req.headers,
-    body: c.req.body,
+    body: requestBody,
   });
+
+
+
+
+
   request.headers.set("Origin", new URL(apiUrl).origin);
 
   const response = await fetch(request);

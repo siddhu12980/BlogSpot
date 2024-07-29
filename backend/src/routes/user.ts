@@ -21,11 +21,11 @@ user.post("/signup", async (c) => {
 
         const body = await c.req.json();
 
+
         const { success } = signupInput.safeParse(body);
 
         if (!success) {
-            return c.json({ error: "Type Validation Failed" });
-
+            return c.json({ error: "Type Validation Failed" }, 400);
         }
 
         // const hashedPassword = await bcrypt.hash(body.password, 10);
@@ -45,23 +45,27 @@ user.post("/signup", async (c) => {
             exp: Math.floor(Date.now() / 1000) + 60 * 30, // Token expires in 5 minutes
         }
         const token = await sign(payload, c.env?.JWT_SECRET)
-
-        return c.json({ token })
+        console.log(token)
+        return c.json({ token }, 200)
 
     } catch (e: any) {
-        return c.json({ error: e.message });
+        console.log(e)
+        return c.json({ error: e.message }, 400);
     }
 });
 
 user.post("/signin", async (c) => {
 
     try {
+
         const body = await c.req.json();
+
+        console.log(body);
 
         const { success } = signupInput.safeParse(body);
 
         if (!success) {
-            return c.json({ error: "Type Validation Failed" });
+            return c.json({ error: "Type Validation Failed" }, 400);
 
         }
 
@@ -73,9 +77,11 @@ user.post("/signin", async (c) => {
                 password: body.password,
             },
         });
+        console.log(user)
+
 
         if (!user) {
-            return c.json({ error: 'Invalid email or Password' });
+            return c.json({ error: 'Invalid email or Password' }, 401);
         }
 
 
@@ -85,15 +91,22 @@ user.post("/signin", async (c) => {
             name: user.name,
             exp: Math.floor(Date.now() / 1000) + 60 * 30, // Token expires in 5 minutes
         }
+        console.log("**********************")
+
+        console.log(payload)
 
         const token = await sign(payload, c.env?.JWT_SECRET)
-
-        return c.json({ token });
+        console.log("====================================")
+        console.log(token)
+        return c.json({ token }, 200);
 
 
     }
     catch (e: any) {
-        return c.json({ error: e.message });
+        console.log("+++++++++++++++++++++++++")
+
+        console.log(e)
+        return c.json({ error: e }, 400);
     }
 });
 
