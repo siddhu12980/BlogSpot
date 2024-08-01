@@ -10,60 +10,50 @@ import RecommendedTopics from "../components/RecommendedTopics";
 import MediumModal from "../components/MediumModal";
 import WriterSuggest from "../components/WriterSuggest";
 
+interface BlogData {
+  name: string;
+  imageUrl: string;
+  description: string;
+  link: string;
+  isPublication: boolean;
+  onFollow: () => void;
+}
+
 const sampleData = [
   {
-    name: "Andrew Zuo",
+    name: "John Doe",
     imageUrl:
       "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "https://stratum.web.app",
-    link: "https://stratum.web.app",
+    description: "The Great Gatsby",
+    link:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     isPublication: false,
     onFollow: () => {
-      console.log("Followed Andrew Zuo");
+      console.log("Followed John Doe");
     },
   },
   {
-    name: "Management Matters",
+    name: "Jane Doe",
     imageUrl:
       "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "There's plenty out there for the C-suite. What about the...",
-    link: "https://example.com/management-matters",
-    isPublication: true,
-    onFollow: () => {
-      console.log("Followed Management Matters");
-    },
-  },
-  {
-    name: "Avi Siegel",
-    imageUrl:
+    description: "The Great Gatsby",
+    link:
       "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "Applying real-world perspective to product...",
-    link: "https://example.com/avi-siegel",
     isPublication: false,
     onFollow: () => {
-      console.log("Followed Avi Siegel");
+      console.log("Followed Jane Doe");
     },
   },
   {
-    name: "Sarah Jones",
+    name: "John Smith",
     imageUrl:
       "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "Marketing expert with a passion for data-driven results.",
-    link: "https://example.com/sarah-jones",
+    description: "The Great Gatsby",
+    link:
+      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
     isPublication: false,
     onFollow: () => {
-      console.log("Followed Sarah Jones");
-    },
-  },
-  {
-    name: "Tech Trends",
-    imageUrl:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "Stay up-to-date with the latest in technology.",
-    link: "https://example.com/tech-trends",
-    isPublication: true,
-    onFollow: () => {
-      console.log("Followed Tech Trends");
+      console.log("Followed John Smith");
     },
   },
 ];
@@ -71,21 +61,44 @@ const sampleData = [
 export const Homepage = () => {
   useEffect(() => {
     fetch(
-      "http://localhost:8787/corsproxy/?apiurl=http://localhost:8787/api/v1/all",
+      "http://localhost:8787/api/v1/all",
+
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
         },
       }
     )
       .then((response) => response.json())
-      .then((data) => console.log(data))
+      .then((data) => {
+        console.log(data);
+        setData(data);
+      })
       .catch((error) => console.error("Error:", error));
   });
 
+  const [data, setData] = useState<BlogData[]>([]);
+
+  if (data !== null && data !== undefined) {
+    let ans: BlogData[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      ans[i] = {
+        name: data[i].name,
+        imageUrl: data[i].imageUrl,
+        description: data[i].description,
+        link: data[i].link,
+        isPublication: data[i].isPublication,
+        onFollow: () => {
+          console.log("Followed " + data[i].name);
+        },
+      };
+    }
+  }
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState([]);
   //   const [textareaHeight, setTextareaHeight] = useState("auto");
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -156,9 +169,7 @@ export const Homepage = () => {
           </div>
 
           <div className="items-end">
-            <BlogFeedItem />
-            <BlogFeedItem />
-            <BlogFeedItem />
+            <BlogFeedItem user={""} title={""} blogContent={""} />
           </div>
         </div>
 

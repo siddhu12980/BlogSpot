@@ -7,7 +7,12 @@ import {
 } from "react-icons/fa";
 import DropMenu from "./DropMenu";
 
-const BlogFeedItem = () => {
+interface data {
+  user: string;
+  title: string;
+  blogContent: string;
+}
+const BlogFeedItem = (data: data) => {
   return (
     <div className="flex flex-col mb-4 p-4 bg-white  ">
       {/* User Profile Pic and Username */}
@@ -17,19 +22,14 @@ const BlogFeedItem = () => {
           alt="User Profile Pic"
           className="w-10 h-10 rounded-full mr-2"
         />
-        <span className="text-sm font-bold">John Doe</span>
+        <span className="text-sm font-bold">{data.user}</span>
       </div>
 
       {/* Content and Image */}
       <div className="flex flex-col lg:flex-row items-start mb-2">
         <div className="lg:w-3/5 w-full lg:mr-4 mb-4 lg:mb-0">
-          <h2 className="text-xl lg:text-2xl font-bold mb-2">
-            This is a sample blog title
-          </h2>
-          <p className="text-base lg:text-lg mb-4">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sit
-            amet nulla auctor, vestibulum magna sed, convallis ex.
-          </p>
+          <h2 className="text-xl lg:text-2xl font-bold mb-2">{data.title}</h2>
+          <p className="text-base lg:text-lg mb-4">{data.blogContent}</p>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-2">
             <div className="flex flex-1 items-center mb-2 lg:mb-0">
               <span className="text-sm text-gray-600 mr-2">2022-01-01</span>
