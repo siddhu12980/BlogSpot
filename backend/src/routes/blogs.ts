@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import { createPostInput, updatePostInput } from "@sidd123/common";
 import { Hono } from "hono";
 
@@ -18,34 +17,35 @@ blogs.get("/:id", async (c) => {
     try {
         const id = c.req.param("id");
         console.log(id)
-        console.log(c.get("userId"));
-
         const prisma = c.get("prisma");
+        const user = await prisma.user.findUnique({
+            where: {
+                id: c.get("userId"),
 
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true
+            }
+        });
         const blog = await prisma.post.findUnique({
             where: {
-                authorId: c.get("userId"),
+                // authorId: c.get("userId"),
                 id: (id).toString(),
             },
             // cacheStrategy: { swr: 60 * 3, ttl: 60 },
-
         })
-
         if (!blog) {
             return c.json({ error: "No blog found" }, 404);
         }
-
-
-        return c.json({ blog }, 200);
-
+        return c.json({ blog, user }, 200);
     }
     catch (e: any) {
         c.json({
             error: e.message
         }, 501);
     }
-
-
 });
 
 blogs.post("/", async (c) => {
@@ -54,7 +54,6 @@ blogs.post("/", async (c) => {
         const authorId = c.get("userId");
 
         const body = await c.req.json();
-
         const { success } = createPostInput.safeParse(body);
 
         if (!success) {
@@ -90,8 +89,6 @@ blogs.get("/", async (c) => {
     } catch (e: any) {
         return c.json({ error: e.message }, 501);
     }
-
-
 
 });
 

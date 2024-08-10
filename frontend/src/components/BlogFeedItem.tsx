@@ -6,15 +6,23 @@ import {
   FaSave,
 } from "react-icons/fa";
 import DropMenu from "./DropMenu";
+import { useNavigate } from "react-router-dom";
 
 interface data {
   user: string;
   title: string;
   blogContent: string;
+  id: string;
+  post_id: string;
 }
 const BlogFeedItem = (data: data) => {
+  const nagivate = useNavigate();
+
   return (
-    <div className="flex flex-col mb-4 p-4 bg-white  ">
+    <div
+      onClick={() => nagivate(`/blog/${data.post_id}`)}
+      className="flex flex-col mb-4 p-4 bg-white  "
+    >
       {/* User Profile Pic and Username */}
       <div className="flex items-center mb-2">
         <img

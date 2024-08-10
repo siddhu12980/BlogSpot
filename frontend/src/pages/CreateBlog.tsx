@@ -1,7 +1,9 @@
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { CgProfile } from "react-icons/cg";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
+import { Link } from "react-router-dom";
+
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -22,12 +24,47 @@ export const CreateBlog = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title || !content) return alert("Please fill out all fields");
-    console.log("Title:", title);
-    console.log("Content:", content);
-    // Add API call or other logic to save the blog post here
+
+    fetch("http://localhost:8787/api/v1/blog", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      body: JSON.stringify({
+        title,
+        content,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        alert("Blog post created successfully");
+      })
+      .catch((error) => console.error("Error:", error));
   };
 
   const ref = useRef<HTMLTextAreaElement>(null);
+
+  const [data, setDatas] = useState<any>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8787/api/v1/all/name", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((datas) => {
+        console.log(datas);
+        setDatas(datas);
+      })
+      .catch((error) => console.error("Error:", error));
+  }, []);
 
   return (
     <>
@@ -35,9 +72,10 @@ export const CreateBlog = () => {
         <nav className="bg-white text-black p-4 sticky top-0">
           <div className="flex justify-between">
             <div className=" font-extrabold text-2xl">
-              BlogSpot{" "}
+              <Link to={"/home"}>BlogSpot</Link>
+
               <span className=" text-sm pb-1/2 font-normal opacity-50">
-                Draft in username
+                Draft in {data.name}
               </span>
             </div>
             <div className="flex py-2">

@@ -35,7 +35,6 @@ const Signin = () => {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      // Handle successful form submission (e.g., send data to the server)
       console.log("Form submitted successfully", formData);
 
       fetch(
@@ -71,21 +70,17 @@ const Signin = () => {
           }
           console.log("Login successful", data);
 
-          // Set the token as a cookie
-          document.cookie = `token=${data.token}; path=/; secure; samesite=strict`;
+          // Save the token in localStorage
+          localStorage.setItem("token", data.token);
 
           if (data.token) {
             window.location.href = "/home";
           }
-          // Redirect to the user's dashboard or another page on successful login
         })
-
         .catch((error) => {
           console.error("Error:", error);
-          // Handle error (e.g., display an error message to the user)
         });
 
-      // Reset form
       setFormData({
         email: "",
         password: "",
@@ -156,7 +151,7 @@ const Signin = () => {
                 <div className="ml-1 text-sm">
                   <label
                     htmlFor="terms"
-                    className="font-dark font-medium hover:underline  text-gray-800"
+                    className="font-dark font-medium hover:underline text-gray-800"
                   >
                     <Link to={"#"}> Forgot password ? </Link>
                   </label>

@@ -82,7 +82,7 @@ const Signup = () => {
           console.log("Login successful", data);
 
           // Set the token as a cookie
-          document.cookie = `token=${data.token}; path=/; secure; samesite=strict`;
+          localStorage.setItem("token", data.token);
 
           if (data.token) {
             window.location.href = "/home";

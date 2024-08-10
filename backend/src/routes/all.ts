@@ -14,18 +14,65 @@ const all = new Hono<{
 
 
 all.get('/', async (c) => {
+    var author_data = [];
     try {
 
         const prisma = c.get('prisma');
         const posts = await prisma.post.findMany({
         });
 
+        for (let i = 0; i < posts.length; i++) {
 
-        return c.json(posts, 200);
+            const data = await prisma.user.findUnique({
+                where: {
+                    id: posts[i].authorId
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            });
+
+
+            author_data[i] = [data, posts[i]];
+        }
+
+
+        return c.json(author_data, 200);
     }
     catch (e: any) {
         return c.json({ error: e.message }, 501);
     }
 })
+
+
+all.get('/name', async (c) => {
+    try {
+
+        const prisma = c.get('prisma');
+        console.log(c.get("userId"));
+        const user_id = c.get("userId");
+        const user_data = await prisma.user.findUnique(
+            {
+                where: {
+                    id: user_id
+                },
+                select: {
+                    name: true,
+                    email: true
+                }
+
+            }
+        );
+
+        return c.json(user_data, 200);
+
+    }
+    catch (e: any) {
+        return c.json({ error: e.message }, 501);
+    }
+})
+
 
 export default all;

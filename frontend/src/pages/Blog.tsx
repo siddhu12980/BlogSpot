@@ -1,41 +1,83 @@
+import { useEffect, useState } from "react";
 import { RxAvatar } from "react-icons/rx";
+import { useParams } from "react-router-dom";
+import { RiseLoader } from "react-spinners";
+
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+}
+interface BlogPost {
+  id: string;
+  authorId: string;
+  title: string;
+  content: string;
+  createdAt: string; // ISO 8601 date string
+  published: boolean;
+  tag: string[];
+  userId: string | null;
+}
 
 const Blog = () => {
-  const data = {
-    title: "This is a dummy blog title , that was ment to be long",
-    content:
-      "The rapid pace of technological advancements has transformed the way we live and work. The rapid pace of technological advancements has transformed the way we live and The rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and work  The rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and work The rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and workThe rapid pace of technological advancements has transformed the way we live and work      \n  \n \nwork.From artificial intelligence and machine learning to the Internet of Things (IoT) and cloud computing, innovative technologies are revolutionizing industries and improving our daily lives. With the rise of 5G networks and edge computing, we can expect even faster and more seamless interactions with our devices and the world around us. As technology continues to evolve, it's exciting to think about the possibilities that the future holds - from smart cities and autonomous vehicles to personalized healthcare and beyond ",
-    author: "User 1 ",
-    date: "June 12",
-    authorData: "this is the author data",
-  };
+  const id = useParams();
+  const [data, setData] = useState<BlogPost>();
+  const [user, setUser] = useState<UserData>();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`http://localhost:8787/api/v1/blog/${id.id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((datas) => {
+        console.log(datas.blog);
+        setData(datas?.blog);
+        setUser(datas?.user);
+        setLoading(false);
+      })
+      .catch((error) => console.error("Error:", error.message));
+  }, []);
 
   return (
     <>
-      <div className="h-full w-full p-10 bg-slate-300 flex flex-row justify-between items-start ">
-        <div className="w-3/5">
-          <h1 className="sm:text-5xl py-5 font-extrabold">{data.title}</h1>
-          <p className="text-gray-600 text-opacity-90 py-3">
-            {" "}
-            Publish at {data.date}
-          </p>
-          <p className="sm:text-xl md:text-2xl">{data.content}</p>
+      {loading ? (
+        <div className="flex justify-center items-center h-screen">
+          <RiseLoader color="#000" loading={true} size={30} />
         </div>
-        <div className="w-2/5 flex flex-col items-center py-5">
-          <p className="text-black sm:text-2xl py-5  ">Author:</p>
+      ) : (
+        <div className="h-screen w-full p-10 bg-slate-300 flex flex-row justify-between items-start ">
+          <div className="w-3/5">
+            <h1 className="sm:text-5xl py-5 font-extrabold">{data?.title}</h1>
+            <p className="text-gray-600 text-opacity-90 py-3">
+              {" "}
+              {/* Publish at {data.date} */}
+            </p>
+            <p className="sm:text-xl md:text-2xl">{data?.content}</p>
+          </div>
+          <div className="w-2/5 flex flex-col items-center py-5">
+            <p className="text-black sm:text-2xl py-5  ">
+              Author: {user?.name}
+            </p>
 
-          <div className="flex ">
-            <div>
-              <RxAvatar size={20} />
-            </div>
+            <div className="flex ">
+              <div>
+                <RxAvatar size={20} />
+              </div>
 
-            <div className="px-2">
-              <p className="font-bold">{data.author}</p>
-              <p className="text-gray-600">{data.authorData}</p>
+              <div className="px-2">
+                {/* <p className="font-bold">{data.author}</p> */}
+                {/* <p className="text-gray-600">{data.authorData}</p> */}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 };
