@@ -1,21 +1,15 @@
 import { Hono } from "hono";
 import blogs from "./routes/blogs";
-import user from "./routes/user";
 import { verify } from 'hono/jwt';
 import type { JWTPayload } from 'hono/utils/jwt/types';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { createMiddleware } from "hono/factory";
 import all from "./routes/all";
-import {
-  getCookie,
-  getSignedCookie,
-  setCookie,
-  setSignedCookie,
-  deleteCookie,
-} from 'hono/cookie'
 
 import { cors } from 'hono/cors'
+import auth from "./routes/auth";
+import user from "./routes/user";
 
 
 const app = new Hono<{
@@ -97,9 +91,10 @@ app.use("/api/v1/all/*", async (c, next) => {
 
 
 
-app.route("/api/v1/user", user)
+app.route("/api/v1/auth", auth)
 app.route("/api/v1/blog", blogs)
 app.route("/api/v1/all", all)
+app.route("/api/v1/user", user)
 
 
 const corsHeaders = {

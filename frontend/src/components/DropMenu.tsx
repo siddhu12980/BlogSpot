@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 
 const DropMenu = () => {
@@ -7,6 +7,20 @@ const DropMenu = () => {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    const handleOutsideClick = (event: any) => {
+      if (!event.target.closest(".relative")) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, [isOpen]);
 
   return (
     <>
@@ -48,7 +62,7 @@ const DropMenu = () => {
                 role="menuitem"
                 id="menu-item-1"
               >
-                Duplicate
+                Not Intrested
               </a>
             </div>
             <div className="py-1" role="none">
@@ -68,7 +82,7 @@ const DropMenu = () => {
                 role="menuitem"
                 id="menu-item-3"
               >
-                Move
+                Save for later
               </a>
             </div>
             <div className="py-1" role="none">

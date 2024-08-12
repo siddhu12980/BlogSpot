@@ -4,7 +4,7 @@ import Signin from "./pages/Signin";
 import Blog from "./pages/Blog";
 import { CreateBlog } from "./pages/CreateBlog";
 import { Homepage } from "./pages/Homepage";
-
+import { AuthorProfile } from "./pages/AuthorProfile";
 function App() {
   return (
     <>
@@ -24,6 +24,7 @@ function App() {
           <Route path="/blog/:id" element={<Blog />} />
           <Route path="/blog" element={<CreateBlog />} />
           <Route path="/home" element={<Homepage />} />
+          <Route path="/author/:id" element={<AuthorProfile />} />
         </Routes>
       </BrowserRouter>
     </>

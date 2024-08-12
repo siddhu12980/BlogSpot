@@ -1,5 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
+import config from "../utils/config";
 
 interface FormData {
   username: string;
@@ -47,20 +48,17 @@ const Signup = () => {
       // Handle successful form submission (e.g., send data to the server)
       console.log("Form submitted successfully", formData);
 
-      fetch(
-        "http://localhost:8787/corsproxy/?apiurl=https://backend.juugi202316701.workers.dev/api/v1/user/signup",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.username,
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      )
+      fetch(`${config.apiUrl}/api/v1/auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
         .then(async (response) => {
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.indexOf("application/json") !== -1) {

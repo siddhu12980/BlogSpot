@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RxAvatar } from "react-icons/rx";
 import { useParams } from "react-router-dom";
 import { RiseLoader } from "react-spinners";
+import config from "../utils/config";
 
 interface UserData {
   id: string;
@@ -26,7 +27,7 @@ const Blog = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8787/api/v1/blog/${id.id}`, {
+    fetch(`${config.apiUrl}/api/v1/blog/${id.id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -75,6 +75,95 @@ blogs.post("/", async (c) => {
     }
 });
 
+blogs.post("/rate", async (c) => {
+    try {
+        const prisma = c.get("prisma");
+
+        const body = await c.req.json();
+
+        const { blog_id, author_id } = body;
+
+
+
+        if (!body.blog_id) {
+            return c.json({ error: " No BlogID Found" }, 400);
+        }
+
+        if (author_id == c.get("userId")) {
+            return c.json({ error: "You can't rate your own post" }, 403);
+        }
+
+        const blog = await prisma.post.update({
+            where: {
+                id: blog_id,
+            },
+            //increase the rating of post by one 
+            data: {
+                rating: {
+                    increment: 1,
+                },
+            },
+
+        });
+        console.log(blog)
+
+        return c.json({ blog }, 200);
+    } catch (e: any) {
+        return c.json({ error: e.message }, 501);
+    }
+});
+
+blogs.post("/save", async (c) => {
+    try {
+        const prisma = c.get("prisma");
+
+        const body = await c.req.json();
+        const { postId } = body;
+        const userId = c.get("userId");
+
+        // Check if the user and post exist
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+
+        if (!user || !post) {
+            return c.json({ error: "User or Post not found" }, 404);
+        }
+
+        // Check if the post is already saved by the user
+        const existingSavedPost = await prisma.user.findFirst({
+            where: {
+                id: userId,
+                savedPosts: {
+                    some: {
+                        id: postId,
+                    },
+                },
+            },
+        });
+
+        if (existingSavedPost) {
+            return c.json({ error: "Post is already saved" }, 400);
+        }
+
+        // Save the post by updating the relation
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                savedPosts: {
+                    connect: { id: postId },
+                },
+            },
+        });
+
+        return c.json({ message: "Post saved successfully" }, 200);
+    } catch (e: any) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+
+
+
 blogs.get("/", async (c) => {
     try {
         const prisma = c.get("prisma");
@@ -128,6 +217,7 @@ blogs.put("/", async (c) => {
         return c.json({ error: e.message }, 501);
     }
 });
+
 
 
 

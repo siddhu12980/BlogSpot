@@ -12,13 +12,16 @@ import WriterSuggest from "../components/WriterSuggest";
 import { PacmanLoader } from "react-spinners";
 import { Link, useNavigate } from "react-router-dom";
 
+import config from "../utils/config";
+import { NavBar } from "../components/NavBar";
 interface BlogData {
   id: string;
   post_id: string;
   name: string;
   title: string;
   content: string;
-  isPublication: boolean;
+  published: boolean;
+  createdAt: string;
 }
 
 interface Item {
@@ -29,8 +32,9 @@ interface Item {
   content: string;
   imageUrl: string;
   description: string;
-  isPublication: boolean;
+  published: boolean;
   link: string;
+  createdAt: string;
 }
 
 type Data = Item[][];
@@ -80,7 +84,7 @@ export const Homepage = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch("http://localhost:8787/api/v1/all", {
+    fetch(`${config.apiUrl}/api/v1/all`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -90,6 +94,7 @@ export const Homepage = () => {
     })
       .then((response) => response.json())
       .then((datas) => {
+        console.log(datas);
         setData(datas);
       })
       .catch((error) => console.error("Error:", error))
@@ -104,7 +109,8 @@ export const Homepage = () => {
       post_id: item[1].id,
       title: item[1].title,
       content: item[1].content,
-      isPublication: item[1].isPublication,
+      published: item[1].published,
+      createdAt: item[1].createdAt,
     }));
   }, [data]);
 
@@ -116,30 +122,7 @@ export const Homepage = () => {
   return (
     <>
       <div>
-        <nav className="bg-white text-black p-2 sticky top-0">
-          <div className="flex justify-between">
-            <div className="font-extrabold flex text-2xl">
-              <div className="pt-3.5">BlogSpot</div>
-              <div>
-                <SearchBar />
-              </div>
-            </div>
-            <div className="flex py-2">
-              <div className="mr-4 py-1">
-                <Link to={"/blog"}>
-                  {" "}
-                  <FiEdit size={25} />
-                </Link>{" "}
-              </div>
-              <div className="mr-4 py-1">
-                <IoNotificationsOutline size={30} />
-              </div>
-              <div className="py-1">
-                <CgProfile size={30} />
-              </div>
-            </div>
-          </div>
-        </nav>
+    <NavBar/>
       </div>
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
         <div className="bg-white h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
@@ -171,7 +154,10 @@ export const Homepage = () => {
                   user={item.name}
                   title={item.title}
                   blogContent={item.content}
+                  createdAt={item.createdAt}
                 />
+                // add start feature , on post so post with high star appear top and add star feature
+                //author with high starr will appear on top
               ))
             )}
           </div>

@@ -3,6 +3,7 @@ import { CgProfile } from "react-icons/cg";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import config from "../utils/config";
 
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");
@@ -25,7 +26,7 @@ export const CreateBlog = () => {
     e.preventDefault();
     if (!title || !content) return alert("Please fill out all fields");
 
-    fetch("http://localhost:8787/api/v1/blog", {
+    fetch(`${config.apiUrl}/api/v1/blog`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -50,7 +51,7 @@ export const CreateBlog = () => {
   const [data, setDatas] = useState<any>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8787/api/v1/all/name", {
+    fetch(`${config.apiUrl}/api/v1/all/name`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

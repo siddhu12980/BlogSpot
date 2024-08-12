@@ -1,5 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
+import config from "../utils/config";
 
 interface FormData {
   email: string;
@@ -37,19 +38,16 @@ const Signin = () => {
     } else {
       console.log("Form submitted successfully", formData);
 
-      fetch(
-        "http://localhost:8787/corsproxy/?apiurl=http://localhost:8787/api/v1/user/signin",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      )
+      fetch(`${config.apiUrl}/api/v1/auth/signin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      })
         .then(async (response) => {
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.indexOf("application/json") !== -1) {

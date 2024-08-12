@@ -1,109 +1,123 @@
-import { useState } from "react";
-import SearchBar from "../components/SearchBar";
-import { Link } from "react-router-dom";
-import { FiEdit } from "react-icons/fi";
-import { IoNotificationsOutline } from "react-icons/io5";
-import { CgProfile } from "react-icons/cg";
+import { useEffect, useState } from "react";
 import { PacmanLoader } from "react-spinners";
-import { FaPlus } from "react-icons/fa";
+import config from "../utils/config";
+import BlogFeedItem from "../components/BlogFeedItem";
+import { NavBar } from "../components/NavBar";
+import { useParams } from "react-router-dom";
+import Featured from "../components/Featured";
+import AuthorComponent from "../components/AuthorComponent";
+import AuthorNav from "../components/AuthorNav";
+import Profile from "../components/Profile";
+
+interface BlogData {
+  id: string;
+  post_id: string;
+  title: string;
+  content: string;
+  published: boolean;
+  createdAt: string;
+}
+
+interface AuthorData {
+  id: string;
+  name: string;
+  email: string;
+}
+const sampleUserData = {
+  name: "Jane Doe",
+  followers: 1234,
+  badges: ["Top Contributor", "MVP", "Most Active"],
+  description:
+    "Jane is a passionate software developer with a knack for solving complex problems. She enjoys contributing to open-source projects and mentoring junior developers.",
+  following: [
+    { name: "Alice Smith", count: 456 },
+    { name: "Bob Johnson", count: 789 },
+  ],
+  lists: [
+    { title: "Favorite Blogs", count: 5 },
+    { title: "Must-Read Books", count: 3 },
+  ],
+};
 
 export const AuthorProfile = () => {
-  const [data, setData] = useState([]);
-  const [realData, setRealData] = useState<[]>([]);
-
+  const { id } = useParams();
+  const [data, setData] = useState<BlogData[]>([]);
+  const [author, setAuthor] = useState<AuthorData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchAuthorData = async () => {
+      try {
+        const response = await fetch(
+          `${config.apiUrl}/api/v1/user/author/${id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const result = await response.json();
+        setAuthor(result.author);
+        setData(result.posts || []);
+      } catch (e:any) {
+        console.error("Error fetching data:", e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAuthorData();
+  }, [id]);
 
   return (
     <>
-      <div>
-        <nav className="bg-white text-black p-2 sticky top-0">
-          <div className="flex justify-between">
-            <div className="font-extrabold flex text-2xl">
-              <div className="pt-3.5">BlogSpot</div>
-              <div>
-                <SearchBar />
-              </div>
-            </div>
-            <div className="flex py-2">
-              <div className="mr-4 py-1">
-                <Link to={"/blog"}>
-                  {" "}
-                  <FiEdit size={25} />
-                </Link>{" "}
-              </div>
-              <div className="mr-4 py-1">
-                <IoNotificationsOutline size={30} />
-              </div>
-              <div className="py-1">
-                <CgProfile size={30} />
-              </div>
-            </div>
-          </div>
-        </nav>
-      </div>
+      <NavBar />
+
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
-        <div className="bg-white h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
+        {/* Left Content */}
+        <div className="bg-white h-full w-full lg:w-[40%] lg:ml-[15%] lg:mr-[5%]">
           <div className="py-5">
-            <nav className="bg-white text-sm font-normal text-black p-2 sticky top-0">
-              <ul className="flex justify-evenly">
-                <li>
-                  <FaPlus />
-                </li>
-                <li>For you</li>
-                <li>Following</li>
-                <li>Startup</li>
-                <li>Science</li>
-                <li>Programming</li>
-              </ul>
-            </nav>
+            <AuthorComponent />
+            <Featured />
+            <AuthorNav />
           </div>
-          <div className="items-end">
+
+          {/* Blog Feed */}
+          <div className="mt-8">
             {loading ? (
-              <div className="flex justify-center items-center h-64">
+              <div className="flex justify-center items-center h-screen">
                 <PacmanLoader />
               </div>
             ) : (
-              <div>AUthor Data</div>
-              //   realData.map((item, index) => (
-              //     <BlogFeedItem
-              //       key={index}
-              //       user={item.name}
-              //       title={item.title}
-              //       blogContent={item.content}
-              //     />
-              //   ))
+              data.map((item, index) => (
+                <BlogFeedItem
+                  key={item.id}
+                  post_id={item.post_id}
+                  id={item.id}
+                  user={author?.name || "Unknown"}
+                  title={item.title}
+                  blogContent={item.content}
+                  createdAt={item.createdAt}
+                />
+              ))
             )}
           </div>
         </div>
-        <div className="bg-white py-5 w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
-          <div className="flex flex-col">
-            <div>
-              <h1>Top Blogs</h1>
-              {/* <div>
-                <BlogSidebar
-                  username="John Doe"
-                  book="The Great Gatsby"
-                  title="My Blog Post is the best blog post in the world"
-                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                />
-                <BlogSidebar
-                  username="John Doe"
-                  book="The Great Gatsby"
-                  title="My Blog Post is the best blog post in the world"
-                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                />
-                <BlogSidebar
-                  username="John Doe"
-                  book="The Great Gatsby"
-                  title="My Blog Post is the best blog post in the world"
-                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                />
-              </div> */}
-            </div>
+
+        {/* Right Sidebar */}
+        <div className="bg-white py-5 w-full lg:w-[30%] lg:mr-[15%] lg:ml-[5%] hidden lg:block">
+          <div className="flex flex-col space-y-6">
+            <Profile
+              name={sampleUserData.name}
+              followers={sampleUserData.followers}
+              badges={sampleUserData.badges}
+              description={sampleUserData.description}
+              following={sampleUserData.following}
+              lists={sampleUserData.lists}
+            />
           </div>
-          <div className="py-4">{/* <MediumModal /> */}</div>
-          <div>{/* <RecommendedTopics /> */}</div>
-          <div>{/* <WriterSuggest suggestions={sampleData} /> */}</div>
         </div>
       </div>
     </>
