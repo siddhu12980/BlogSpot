@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RxAvatar } from "react-icons/rx";
 import { useParams } from "react-router-dom";
 import { RiseLoader } from "react-spinners";
-import config from "../utils/config";
+import config from "../../utils/config";
 
 interface UserData {
   id: string;

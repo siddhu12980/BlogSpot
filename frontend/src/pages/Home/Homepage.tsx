@@ -1,19 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
-import { CgProfile } from "react-icons/cg";
-import { IoNotificationsOutline } from "react-icons/io5";
-import { FiEdit } from "react-icons/fi";
-import SearchBar from "../components/SearchBar";
-import BlogFeedItem from "../components/BlogFeedItem";
+import BlogFeedItem from "./component/BlogFeedItem";
 import { FaPlus } from "react-icons/fa";
-import BlogSidebar from "../components/BlogSidebar";
-import RecommendedTopics from "../components/RecommendedTopics";
-import MediumModal from "../components/MediumModal";
-import WriterSuggest from "../components/WriterSuggest";
+import BlogSidebar from "./component/BlogSidebar";
+import RecommendedTopics from "../../components/RecommendedTopics";
+import MediumModal from "../../components/MediumModal";
+import WriterSuggest from "../../components/WriterSuggest";
 import { PacmanLoader } from "react-spinners";
-import { Link, useNavigate } from "react-router-dom";
 
-import config from "../utils/config";
-import { NavBar } from "../components/NavBar";
+import config from "../../utils/config";
+import { NavBar } from "../Navbar/NavBar";
 interface BlogData {
   id: string;
   post_id: string;
@@ -81,6 +76,10 @@ const sampleData = [
 export const Homepage = () => {
   const [data, setData] = useState<Data>([]);
   const [realData, setRealData] = useState<BlogData[]>([]);
+
+  const [topData, setTopData] = useState<Data>([]);
+  const [realTopData, setRealTopData] = useState<BlogData[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -94,11 +93,39 @@ export const Homepage = () => {
     })
       .then((response) => response.json())
       .then((datas) => {
-        console.log(datas);
         setData(datas);
       })
       .catch((error) => console.error("Error:", error))
       .finally(() => setLoading(false));
+
+    fetch(`${config.apiUrl}/api/v1/all/top`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((datas) => {
+        // console.log(datas);s
+        setTopData(datas);
+      })
+      .catch((error) => console.error("Error:", error));
+
+    fetch(`${config.apiUrl}/api/v1/all/name`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    })
+      .then((response) => response.json())
+      .then((datas) => {
+        localStorage.setItem("userId", datas.id);
+      });
+
   }, []);
 
   const transformedData = useMemo(() => {
@@ -114,15 +141,30 @@ export const Homepage = () => {
     }));
   }, [data]);
 
+  const transformedDataTop = useMemo(() => {
+    if (!topData || topData.length === 0) return [];
+    return topData.map((item) => ({
+      id: item[0].id,
+      name: item[0].name,
+      post_id: item[1].id,
+      title: item[1].title,
+      content: item[1].content,
+      published: item[1].published,
+      createdAt: item[1].createdAt,
+    }));
+  }, [topData]);
+
   useEffect(() => {
     setRealData(transformedData);
-    console.log(realData);
-  }, [transformedData]);
+    setRealTopData(transformedDataTop);
+
+    console.log(transformedDataTop);
+  }, [transformedData, transformedDataTop]);
 
   return (
     <>
       <div>
-    <NavBar/>
+        <NavBar />
       </div>
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
         <div className="bg-white h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
@@ -167,24 +209,15 @@ export const Homepage = () => {
             <div>
               <h1>Top Blogs</h1>
               <div>
-                <BlogSidebar
-                  username="John Doe"
-                  book="The Great Gatsby"
-                  title="My Blog Post is the best blog post in the world"
-                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                />
-                <BlogSidebar
-                  username="John Doe"
-                  book="The Great Gatsby"
-                  title="My Blog Post is the best blog post in the world"
-                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                />
-                <BlogSidebar
-                  username="John Doe"
-                  book="The Great Gatsby"
-                  title="My Blog Post is the best blog post in the world"
-                  profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                />
+                {realTopData.map((item, index) => (
+                  <BlogSidebar
+                    key={index}
+                    username={item.name}
+                    title={item.title}
+                    book="The Great Gatsby"
+                    profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -195,7 +228,22 @@ export const Homepage = () => {
             <RecommendedTopics />
           </div>
           <div>
-            <WriterSuggest suggestions={sampleData} />
+            {
+              // Writer Suggest
+              realTopData.map((item, index) => (
+                <WriterSuggest
+                  key={index}
+                  name={item.name}
+                  imageUrl="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                  //this is author description needs to be implemented
+                  description="The Great Gatsby"
+                  user_id={item.id}
+                  onFollow={() => {
+                    console.log("Followed John Smith");
+                  }}
+                />
+              ))
+            }
           </div>
         </div>
       </div>

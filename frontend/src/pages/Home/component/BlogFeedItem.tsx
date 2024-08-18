@@ -1,7 +1,7 @@
 import { FaStar, FaComment, FaSave } from "react-icons/fa";
-import DropMenu from "./DropMenu";
+import DropMenu from "../../../components/DropMenu";
 import { useNavigate } from "react-router-dom";
-import config from "../utils/config";
+import config from "../../../utils/config";
 
 interface data {
   user: string;
@@ -82,12 +82,17 @@ const BlogFeedItem = (data: data) => {
       </div>
 
       <div
-        onClick={() => nagivate(`/blog/${data.post_id}`)}
         className="flex cursor-pointer flex-col lg:flex-row items-start mb-2"
       >
         <div className="lg:w-3/5 w-full lg:mr-4 mb-4 lg:mb-0">
-          <h2 className="text-xl lg:text-2xl font-bold mb-2">{data.title}</h2>
-          <p className="text-base lg:text-lg mb-4">{data.blogContent}</p>
+          <h2 
+        onClick={() => nagivate(`/blog/${data.post_id}`)}
+
+           className="text-xl lg:text-2xl font-bold mb-2">{data.title}</h2>
+          <p
+        onClick={() => nagivate(`/blog/${data.post_id}`)}
+           
+           className="text-base lg:text-lg mb-4">{data.blogContent}</p>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-2">
             <div className="flex flex-1 items-center mb-2 lg:mb-0">
               <span className="text-sm text-gray-600 mr-2">
@@ -108,7 +113,7 @@ const BlogFeedItem = (data: data) => {
                 size={18}
                 className="text-gray-600 mr-2"
               />
-              <DropMenu />
+              <DropMenu  />
             </div>
           </div>
         </div>

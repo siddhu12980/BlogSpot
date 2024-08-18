@@ -42,4 +42,9 @@ user.get("/author/:id", async (c) => {
     }
 });
 
+user.post("/upload", async (c) => {
+    console.log("upload");
+
+});
+
 export default user;

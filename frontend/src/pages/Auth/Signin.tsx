@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import config from "../utils/config";
+import config from "../../utils/config";
 
 interface FormData {
   email: string;
@@ -63,6 +63,7 @@ const Signin = () => {
           }
         })
         .then(({ data, status }) => {
+          
           if (status !== 200) {
             throw new Error(data.error || "Unknown error occurred");
           }
@@ -70,6 +71,7 @@ const Signin = () => {
 
           // Save the token in localStorage
           localStorage.setItem("token", data.token);
+
 
           if (data.token) {
             window.location.href = "/home";

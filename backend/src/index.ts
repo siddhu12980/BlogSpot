@@ -1,21 +1,22 @@
 import { Hono } from "hono";
 import blogs from "./routes/blogs";
-import { verify } from 'hono/jwt';
-import type { JWTPayload } from 'hono/utils/jwt/types';
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { createMiddleware } from "hono/factory";
 import all from "./routes/all";
-
+import { nanoid } from "nanoid";
 import { cors } from 'hono/cors'
 import auth from "./routes/auth";
 import user from "./routes/user";
+import { JWTPayload } from "hono/utils/jwt/types";
+import { verify } from "hono/jwt";
 
 
 const app = new Hono<{
   Bindings: {
     DATABASE_URL: string,
     JWT_SECRET: string,
+    MY_BUCKET: R2Bucket
   };
 
   Variables: {
@@ -25,6 +26,7 @@ const app = new Hono<{
 }>();
 
 app.use('/api/v1/*', cors())
+app.use('/*', cors())
 
 
 const prismaMiddleware = createMiddleware(async (c, next) => {
@@ -38,6 +40,57 @@ const prismaMiddleware = createMiddleware(async (c, next) => {
 )
 
 app.use("*", prismaMiddleware);
+
+app.put("/upload", async (c, next) => {
+  try {
+    const key = nanoid(10)
+    const formData = await c.req.parseBody()
+    const file = formData['file']
+    if (file instanceof File) {
+      const fileBuffer = await file.arrayBuffer()
+
+      const fullName = file.name
+      const ext = fullName.split('.').pop()
+      const path = `images/${key}.${ext}`
+
+      await c.env.MY_BUCKET.put(path, fileBuffer)
+
+      return c.json({
+        'image': {
+          'url': `${path}`
+        }
+      }, 200)
+    } else {
+      return c.text('Invalid file', 400)
+    }
+  }
+  catch (e: any) {
+    return c.json({ error: e.message }, 501);
+  }
+
+})
+
+app.get("/image/:key", async (c, next) => {
+  try {
+    const key = c.req.param("key");
+    const image = await c.env.MY_BUCKET.get(`images/${key}`);
+
+    if (image) {
+      // Return the image as a response
+      return new Response(image.body, {
+        headers: {
+          "Content-Type": image.httpMetadata?.contentType || "application/octet-stream",
+        },
+        status: 200,
+      });
+    } else {
+      // If the image is not found
+      return c.text("Image not found", 404);
+    }
+  } catch (e: any) {
+    return c.json({ error: e.message }, 500);
+  }
+});
 
 app.use("/api/v1/blog/*", async (c, next) => {
 
@@ -97,81 +150,5 @@ app.route("/api/v1/all", all)
 app.route("/api/v1/user", user)
 
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-  "Access-Control-Allow-Headers": "*",
-  "Access-Control-Max-Age": "86400",
-};
-
-const handleRequest = async (c: any) => {
-
-  const url = new URL(c.req.url);
-  const apiUrl = url.searchParams.get("apiurl");
-
-  console.log(apiUrl);
-
-  if (!apiUrl) {
-    return c.text("Missing apiurl parameter", 400);
-  }
-
-  const requestBody = await c.req.arrayBuffer();
-
-  const request = new Request(apiUrl, {
-    method: c.req.method,
-    headers: c.req.headers,
-    body: requestBody,
-  });
-
-
-
-
-
-  request.headers.set("Origin", new URL(apiUrl).origin);
-
-  const response = await fetch(request);
-  const newResponse = new Response(response.body, response);
-
-  newResponse.headers.set("Access-Control-Allow-Origin", "*");
-  newResponse.headers.append("Vary", "Origin");
-
-  return newResponse;
-};
-
-const handleOptions = async (c: any) => {
-  if (
-    c.req.header("Origin") &&
-    c.req.header("Access-Control-Request-Method") &&
-    c.req.header("Access-Control-Request-Headers")
-  ) {
-    return c.newResponse(null, {
-      headers: {
-        ...corsHeaders,
-        "Access-Control-Allow-Headers": c.req.header("Access-Control-Request-Headers"),
-      },
-    });
-  } else {
-    return c.newResponse(null, {
-      headers: {
-        Allow: "GET, HEAD, POST, OPTIONS",
-      },
-    });
-  }
-};
-
-app.use("/corsproxy/*", async (c, next) => {
-  if (c.req.method === "OPTIONS") {
-    return handleOptions(c);
-  } else if (["GET", "HEAD", "POST"].includes(c.req.method)) {
-    return handleRequest(c);
-  } else {
-    return c.newResponse(null, { status: 405, statusText: "Method Not Allowed" });
-  }
-});
-
-
-
-
-
-
 export default app;
+

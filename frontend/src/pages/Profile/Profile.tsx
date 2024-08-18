@@ -1,7 +1,8 @@
-import React from "react";
+import { FiEdit } from "react-icons/fi";
 
 interface UserProps {
   name: string;
+  id?: string;
   followers: number;
   badges: string[];
   description: string;
@@ -10,6 +11,7 @@ interface UserProps {
 }
 
 export const Profile = ({
+  id,
   name,
   followers,
   badges,
@@ -17,30 +19,41 @@ export const Profile = ({
   following,
   lists,
 }: UserProps) => {
+  //hide follow button for own profile
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center">
-        <img
-          src="https://i.imgur.com/V1iU36A.jpg"
-          alt={name}
-          className="w-24 h-24 rounded-full"
-        />
+        <div className="relative w-24 h-24">
+          <img
+            onClick={() => console.log("Change Author Profile Picture")}
+            src="https://i.imgur.com/V1iU36A.jpg"
+            alt={name}
+            className="w-24 h-24 rounded-full"
+          />
+          <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full">
+            <FiEdit className="text-blue-500" />
+          </div>
+        </div>
         <h1 className="text-2xl font-bold mt-4">{name}</h1>
         <p className="text-gray-600 text-lg mt-2">{followers} Followers</p>
         <div className="flex gap-2 mt-4">
           {badges.map((badge) => (
             <span
               key={badge}
-              className={`bg-blue-100 text-blue-500 font-medium text-sm px-2 py-1 rounded-full`}
+              className="bg-blue-100 text-blue-500 font-medium text-sm px-2 py-1 rounded-full"
             >
               {badge}
             </span>
           ))}
         </div>
         <p className="text-gray-700 mt-4">{description}</p>
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">
-          Follow
-        </button>
+        {id != localStorage.getItem("userId") ? (
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">
+            Follow
+          </button>
+        ) : (
+          <></>
+        )}
       </div>
       <div className="mt-8">
         <h2 className="text-xl font-bold">Following</h2>

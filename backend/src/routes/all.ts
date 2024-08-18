@@ -59,6 +59,7 @@ all.get('/name', async (c) => {
                     id: user_id
                 },
                 select: {
+                    id: true,
                     name: true,
                     email: true
                 }
@@ -73,6 +74,41 @@ all.get('/name', async (c) => {
         return c.json({ error: e.message }, 501);
     }
 })
+
+all.get("/top", async (c) => {
+    try {
+        const prisma = c.get("prisma");
+       
+        const post=[];
+       const top_posts = await prisma.post.findMany({
+            orderBy: {
+                rating: 'desc'
+            },
+            take: 5
+        });
+
+        for (let i = 0; i < top_posts.length; i++) {
+            const data = await prisma.user.findUnique({
+                where: {
+                    id: top_posts[i].authorId
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            });
+            post[i] = [data, top_posts[i]];
+       }
+           
+
+        return c.json(post, 200);
+    }
+    catch (e: any) {
+        return c.json({ error: e.message }, 501);
+    }
+}   )
+
 
 
 export default all;

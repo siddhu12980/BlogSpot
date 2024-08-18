@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { PacmanLoader } from "react-spinners";
-import config from "../utils/config";
-import BlogFeedItem from "../components/BlogFeedItem";
-import { NavBar } from "../components/NavBar";
+import config from "../../utils/config";
+import BlogFeedItem from "../Home/component/BlogFeedItem";
+import { NavBar } from "../Navbar/NavBar";
 import { useParams } from "react-router-dom";
-import Featured from "../components/Featured";
-import AuthorComponent from "../components/AuthorComponent";
-import AuthorNav from "../components/AuthorNav";
-import Profile from "../components/Profile";
+import Featured from "../../components/Featured";
+import AuthorComponent from "./component/AuthorComponent";
+import AuthorNav from "./component/AuthorNav";
+import Profile from "../../components/Profile";
 
 interface BlogData {
   id: string;
@@ -69,6 +69,22 @@ export const AuthorProfile = () => {
     };
 
     fetchAuthorData();
+
+    // const fetchuserData = async () => {
+    //   try {
+    //     const response = await fetch(`${config.apiUrl}/api/v1/all/name`, {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //       },
+    //     });
+    //     const result = await response.json();
+    //     localStorage.setItem("userId", result.id);
+    //   } catch (e:any) {
+    //     console.error("Error fetching data:", e.message);
+    //   }
+    // }
   }, [id]);
 
   return (
@@ -110,6 +126,7 @@ export const AuthorProfile = () => {
         <div className="bg-white py-5 w-full lg:w-[30%] lg:mr-[15%] lg:ml-[5%] hidden lg:block">
           <div className="flex flex-col space-y-6">
             <Profile
+              id={id}
               name={sampleUserData.name}
               followers={sampleUserData.followers}
               badges={sampleUserData.badges}

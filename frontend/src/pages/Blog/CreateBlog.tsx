@@ -3,7 +3,7 @@ import { CgProfile } from "react-icons/cg";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
 import { Link } from "react-router-dom";
-import config from "../utils/config";
+import config from "../../utils/config";
 
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");

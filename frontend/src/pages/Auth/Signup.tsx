@@ -1,6 +1,6 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import config from "../utils/config";
+import config from "../../utils/config";
 
 interface FormData {
   username: string;

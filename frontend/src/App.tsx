@@ -1,23 +1,19 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Signup from "./pages/Signup";
-import Signin from "./pages/Signin";
-import Blog from "./pages/Blog";
-import { CreateBlog } from "./pages/CreateBlog";
-import { Homepage } from "./pages/Homepage";
-import { AuthorProfile } from "./pages/AuthorProfile";
+import Signup from "./pages/Auth/Signup";
+import Signin from "./pages/Auth/Signin";
+import Blog from "./pages/Blog/Blog";
+import { CreateBlog } from "./pages/Blog/CreateBlog";
+import { Homepage } from "./pages/Home/Homepage";
+import { AuthorProfile } from "./pages/Author/AuthorProfile";
+import UploadProfile from "./pages/UploadProfile";
+import ImageUpload from "./pages/ImageUpload";
+import Onboard from "./pages/onboarding/Onboard";
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                <h1>Welcome TO Dashboard</h1>
-              </>
-            }
-          />
+          <Route path="/" element={<Onboard />} />
 
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
