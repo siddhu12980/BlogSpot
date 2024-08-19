@@ -83,7 +83,7 @@ const Signup = () => {
           localStorage.setItem("token", data.token);
 
           if (data.token) {
-            window.location.href = "/home";
+            window.location.href = "/";
           }
           // Redirect to the user's dashboard or another page on successful login
         })

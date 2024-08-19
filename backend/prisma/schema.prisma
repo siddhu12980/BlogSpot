@@ -14,26 +14,27 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
+  id            String    @id @default(uuid())
+  email         String    @unique
   name          String?
   password      String
   profilePicKey String?
   bannerPicKey  String?
-  about          String?
+  about         String?
   posts         Post[]
-  follow        Follow[] @relation(name: "FollowedUser")
-  followers     Follow[] @relation(name: "FollowerUser")
-  savedPosts    Post[]   @relation(name: "SavedPost")
+  followers     Follows[] @relation("following")
+  following     Follows[] @relation("follower")
+  savedPosts    Post[]    @relation(name: "SavedPost")
   tagsLiked     String[]
 }
 
-model Follow {
-  id          String @id @default(uuid())
-  followed    User   @relation(name: "FollowedUser", fields: [followersId], references: [id], onDelete: Cascade)
-  follower    User   @relation(name: "FollowerUser", fields: [followedId], references: [id], onDelete: Cascade)
-  followedId  String
-  followersId String
+model Follows {
+  follower    User @relation("follower", fields: [followerId], references: [id])
+  followerId  String
+  following   User @relation("following", fields: [followingId], references: [id])
+  followingId String
+
+  @@id([followerId, followingId])
 }
 
 model Post {

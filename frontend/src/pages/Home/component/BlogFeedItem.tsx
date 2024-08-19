@@ -1,7 +1,7 @@
 import { FaStar, FaComment, FaSave } from "react-icons/fa";
-import DropMenu from "../../../components/DropMenu";
 import { useNavigate } from "react-router-dom";
 import config from "../../../utils/config";
+import DropMenu from "../../Navbar/DropMenu";
 
 interface data {
   user: string;

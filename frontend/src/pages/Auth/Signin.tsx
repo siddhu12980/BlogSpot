@@ -6,7 +6,6 @@ interface FormData {
   email: string;
   password: string;
 }
-
 const Signin = () => {
   const [formData, setFormData] = useState<FormData>({
     email: "",
@@ -63,7 +62,6 @@ const Signin = () => {
           }
         })
         .then(({ data, status }) => {
-          
           if (status !== 200) {
             throw new Error(data.error || "Unknown error occurred");
           }
@@ -71,7 +69,6 @@ const Signin = () => {
 
           // Save the token in localStorage
           localStorage.setItem("token", data.token);
-
 
           if (data.token) {
             window.location.href = "/home";

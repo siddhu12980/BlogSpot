@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { FiUpload } from "react-icons/fi";
+import config from "../../utils/config";
 
 const Onboard = () => {
   const [profilePic, setProfilePic] = useState<File | null>(null);
   const [about, setAbout] = useState<string>("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-
   const availableTopics = [
     "Technology",
     "Health",
@@ -30,8 +30,41 @@ const Onboard = () => {
 
   const handleTagClick = (tag: string) => {
     setSelectedTopics((prev) =>
-      prev.includes(tag) ? prev.filter((topic) => topic !== tag) : [...prev, tag]
+      prev.includes(tag)
+        ? prev.filter((topic) => topic !== tag)
+        : [...prev, tag]
     );
+  };
+
+  const handleImageUpload = async (file: File) => {
+    const url = `${config.apiUrl}/upload`;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        const data=res["image"].url
+        const key = data.split("/").pop();
+        console.log(`Image uploaded successfully: ${file.name}`);
+        console.log("Image key:", key);
+
+        return key;
+      } else {
+        console.error("Upload failed:", response.statusText);
+        return "";
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
   };
 
   const handleSubmit = async () => {
@@ -40,32 +73,42 @@ const Onboard = () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("profilePic", profilePic);
-    formData.append("about", about);
-    formData.append("topics", JSON.stringify(selectedTopics));
-
     try {
-      const response = await fetch("/api/onboarding", {
+      const key: string = await handleImageUpload(profilePic);
+      if (!key) {
+        throw new Error("Image upload failed");
+      }
+
+      const formData = new FormData();
+      formData.append("profilePicKey", key); // Fixed typo
+      formData.append("about", about);
+      formData.append("topics", JSON.stringify(selectedTopics));
+
+      const response = await fetch(`${config.apiUrl}/api/v1/user/onboarding`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: formData,
       });
 
       if (response.ok) {
-        // Redirect to home or dashboard page after successful onboarding
-        window.location.href = "/home";
+        console.log("Profile completed successfully!");
+        setError(""); // Clear the error if successful
       } else {
         const errorMessage = await response.text();
         setError(errorMessage);
       }
-    } catch (e: any) {
+    } catch (e:any) {
       setError(e.message);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Welcome! Complete Your Profile</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        Welcome! Complete Your Profile
+      </h1>
 
       <div className="mb-6 flex justify-center items-center">
         <div className="relative w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 bg-gray-100 flex items-center justify-center">
@@ -98,7 +141,9 @@ const Onboard = () => {
       </div>
 
       <div className="mb-6">
-        <label className="block text-lg font-medium mb-2">Topics of Interest:</label>
+        <label className="block text-lg font-medium mb-2">
+          Topics of Interest:
+        </label>
         <div className="flex flex-wrap gap-2">
           {availableTopics.map((topic) => (
             <button

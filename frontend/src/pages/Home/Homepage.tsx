@@ -1,14 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
-import BlogFeedItem from "./component/BlogFeedItem";
 import { FaPlus } from "react-icons/fa";
-import BlogSidebar from "./component/BlogSidebar";
-import RecommendedTopics from "../../components/RecommendedTopics";
-import MediumModal from "../../components/MediumModal";
-import WriterSuggest from "../../components/WriterSuggest";
-import { PacmanLoader } from "react-spinners";
-
 import config from "../../utils/config";
 import { NavBar } from "../Navbar/NavBar";
+import { PacmanLoader } from "react-spinners";
+import BlogFeedItem from "./component/BlogFeedItem";
+import BlogSidebar from "./component/BlogSidebar";
+import MediumModal from "./MediumModal";
+import RecommendedTopics from "./component/RecommendedTopics";
+import WriterSuggest from "./component/WriterSuggest";
+
 interface BlogData {
   id: string;
   post_id: string;

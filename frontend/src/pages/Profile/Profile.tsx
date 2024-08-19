@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
+import config from "../../utils/config";
 
 interface UserProps {
   name: string;
@@ -8,6 +10,7 @@ interface UserProps {
   description: string;
   following: { name: string; count: number }[];
   lists: { title: string; count: number }[];
+  ProfileKEy: string; // No `?` here, making it required
 }
 
 export const Profile = ({
@@ -18,15 +21,43 @@ export const Profile = ({
   description,
   following,
   lists,
+  ProfileKEy,
 }: UserProps) => {
-  //hide follow button for own profile
+  const [profilePicUrl, setProfilePicUrl] = useState<string>("");
+
+  const handelFollowClick = async () => {
+    const url = `${config.apiUrl}/api/v1/user/follow/${id}`;
+
+    try {
+      const response = await fetch(url, {
+        method: "PUT", // Use PUT method if you are updating or creating a follow relationship
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (response.ok) {
+        console.log("Followed User");
+      } else {
+        console.error("Failed to follow user:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error following user:", error);
+    }
+  };
+
+  useEffect(() => {
+    setProfilePicUrl(`${config.apiUrl}/image/${ProfileKEy}`);
+  }, [ProfileKEy]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center">
         <div className="relative w-24 h-24">
           <img
             onClick={() => console.log("Change Author Profile Picture")}
-            src="https://i.imgur.com/V1iU36A.jpg"
+            src={profilePicUrl || "https://i.imgur.com/V1iU36A.jpg"} // Fallback to a placeholder if no image URL is available
             alt={name}
             className="w-24 h-24 rounded-full"
           />
@@ -47,13 +78,14 @@ export const Profile = ({
           ))}
         </div>
         <p className="text-gray-700 mt-4">{description}</p>
-        {id != localStorage.getItem("userId") ? (
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4">
+        {id !== localStorage.getItem("userId") ? (
+          <button
+            onClick={handelFollowClick}
+            className="bg-blue-500  hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+          >
             Follow
           </button>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </div>
       <div className="mt-8">
         <h2 className="text-xl font-bold">Following</h2>
@@ -65,7 +97,7 @@ export const Profile = ({
             >
               <div className="flex items-center">
                 <img
-                  src="https://i.imgur.com/V1iU36A.jpg"
+                  src={"https://i.imgur.com/V1iU36A.jpg"} // Reuse the profilePicUrl
                   alt={user.name}
                   className="w-8 h-8 rounded-full mr-2"
                 />
@@ -82,7 +114,7 @@ export const Profile = ({
           {lists.map((list) => (
             <li key={list.title} className="bg-white rounded-md shadow-md p-4">
               <img
-                src="https://i.imgur.com/V1iU36A.jpg"
+                src={"https://i.imgur.com/V1iU36A.jpg"} // Reuse the profilePicUrl
                 alt={list.title}
                 className="w-full h-24 object-cover rounded-md mb-2"
               />

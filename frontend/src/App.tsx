@@ -5,8 +5,6 @@ import Blog from "./pages/Blog/Blog";
 import { CreateBlog } from "./pages/Blog/CreateBlog";
 import { Homepage } from "./pages/Home/Homepage";
 import { AuthorProfile } from "./pages/Author/AuthorProfile";
-import UploadProfile from "./pages/UploadProfile";
-import ImageUpload from "./pages/ImageUpload";
 import Onboard from "./pages/onboarding/Onboard";
 function App() {
   return (

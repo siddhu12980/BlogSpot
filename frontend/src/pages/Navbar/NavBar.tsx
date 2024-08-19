@@ -1,4 +1,4 @@
-import SearchBar from "../../components/SearchBar";
+import SearchBar from "./SearchBar";
 import { Link, useNavigate } from "react-router-dom";
 import { FiEdit } from "react-icons/fi";
 import { IoNotificationsOutline } from "react-icons/io5";

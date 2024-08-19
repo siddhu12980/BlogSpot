@@ -16,7 +16,7 @@ const blogs = new Hono<{
 blogs.get("/:id", async (c) => {
     try {
         const id = c.req.param("id");
-        console.log(id)
+
         const prisma = c.get("prisma");
         const user = await prisma.user.findUnique({
             where: {

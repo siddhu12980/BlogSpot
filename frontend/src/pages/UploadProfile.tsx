@@ -1,30 +1,32 @@
 import React, { useState, useEffect } from "react";
 import apiUrl from "../utils/config";
+import { useNavigate } from "react-router-dom";
 
 interface ProfilePictureUploadProps {
   onUpload: (file: File) => void;
 }
 
 const UploadProfile: React.FC = () => {
+  const navigate = useNavigate();
   const handleImageUpload = async (file: File) => {
     const url = `${apiUrl.apiUrl}/upload`;
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
 
     try {
       const response = await fetch(url, {
-        method: 'PUT',
+        method: "PUT",
         body: formData,
       });
 
       if (response.ok) {
-
         console.log(`Image uploaded successfully: ${file.name}`);
+        navigate("/home");
       } else {
-        console.error('Upload failed:', response.statusText);
+        console.error("Upload failed:", response.statusText);
       }
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
     }
   };
 

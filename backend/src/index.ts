@@ -73,6 +73,7 @@ app.put("/upload", async (c, next) => {
 app.get("/image/:key", async (c, next) => {
   try {
     const key = c.req.param("key");
+    console.log(key);
     const image = await c.env.MY_BUCKET.get(`images/${key}`);
 
     if (image) {
@@ -95,6 +96,30 @@ app.get("/image/:key", async (c, next) => {
 app.use("/api/v1/blog/*", async (c, next) => {
 
   console.log('--------------Blog middleware---------------');
+  const jwt = c.req.header('Authorization');
+  if (!jwt) {
+    c.status(401);
+    return c.json({ error: 'unauthorized' });
+  }
+  const token = jwt.split(' ')[1];
+  let payload: JWTPayload | null;
+  try {
+    payload = await verify(token, c.env.JWT_SECRET);
+  } catch (e) {
+    c.status(401);
+    return c.json({ error: 'unauthorized' });
+  }
+  if (!payload) {
+    c.status(401);
+    return c.json({ error: 'unauthorized' });
+  }
+  c.set('userId', String(payload.id));
+  await next();
+})
+
+app.use("/api/v1/user/*", async (c, next) => {
+
+  console.log('--------------User middleware---------------');
   const jwt = c.req.header('Authorization');
   if (!jwt) {
     c.status(401);
