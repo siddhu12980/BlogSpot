@@ -28,7 +28,6 @@ auth.post("/signup", async (c) => {
             return c.json({ error: "Type Validation Failed" }, 400);
         }
 
-        // const hashedPassword = await bcrypt.hash(body.password, 10);
 
         const user = await prisma.user.create({
             data: {
@@ -45,7 +44,6 @@ auth.post("/signup", async (c) => {
             exp: Math.floor(Date.now() / 1000) + 60 * 30, // Token expires in 5 minutes
         }
         const token = await sign(payload, c.env?.JWT_SECRET)
-        console.log(token)
         return c.json({ token }, 200)
 
     } catch (e: any) {
@@ -60,7 +58,6 @@ auth.post("/signin", async (c) => {
 
         const body = await c.req.json();
 
-        console.log(body);
 
         const { success } = signupInput.safeParse(body);
 
@@ -77,7 +74,6 @@ auth.post("/signin", async (c) => {
                 password: body.password,
             },
         });
-        console.log(user)
 
 
         if (!user) {
@@ -89,21 +85,16 @@ auth.post("/signin", async (c) => {
             email: user.email,
             id: user.id,
             name: user.name,
-            exp: Math.floor(Date.now() / 1000) + 60 * 30, // Token expires in 5 minutes
+            exp: Math.floor(Date.now() / 1000) + 60 * 30, 
         }
-        console.log("**********************")
 
-        console.log(payload)
 
         const token = await sign(payload, c.env?.JWT_SECRET)
-        console.log("====================================")
-        console.log(token)
         return c.json({ token }, 200);
 
 
     }
     catch (e: any) {
-        console.log("+++++++++++++++++++++++++")
 
         console.log(e)
         return c.json({ error: e }, 400);

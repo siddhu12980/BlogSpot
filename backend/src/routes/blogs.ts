@@ -97,7 +97,6 @@ blogs.post("/rate", async (c) => {
             where: {
                 id: blog_id,
             },
-            //increase the rating of post by one 
             data: {
                 rating: {
                     increment: 1,

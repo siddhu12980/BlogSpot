@@ -29,11 +29,6 @@ interface AuthorData {
 }
 
 const sampleUserData = {
-  name: "Jane Doe",
-  followers: 1234,
-  badges: ["Top Contributor", "MVP", "Most Active"],
-  description:
-    "Jane is a passionate software developer with a knack for solving complex problems. She enjoys contributing to open-source projects and mentoring junior developers.",
   following: [
     { name: "Alice Smith", count: 456 },
     { name: "Bob Johnson", count: 789 },
@@ -46,12 +41,51 @@ const sampleUserData = {
 
 export const AuthorProfile = () => {
   const { id } = useParams();
+  const [followedUser, setFollowedUser] = useState<string[]>([]);
   const [data, setData] = useState<BlogData[]>([]);
   const [author, setAuthor] = useState<AuthorData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const searchFollower = async () => {
+    try {
+      const response = await fetch(`${config.apiUrl}/api/v1/user/relation`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const res = await response.json();
+
+      if (!res || !res.followedUsers) {
+        console.log("No followed users found.");
+        return;
+      }
+
+      const data = res.followedUsers.map(
+        (user: { followingId: string }) => user.followingId
+      );
+
+      setFollowedUser(data);
+    } catch (e) {
+      console.error("Error fetching followed users:", e.message);
+    }
+  };
+
+  useEffect(() => {
+    searchFollower();
+
+  }, [id]);
+
   useEffect(() => {
     const fetchAuthorData = async () => {
+   
+
       try {
         const response = await fetch(
           `${config.apiUrl}/api/v1/user/author/${id}`,
@@ -66,7 +100,7 @@ export const AuthorProfile = () => {
         const result = await response.json();
         setAuthor(result.author);
         setData(result.posts || []);
-      } catch (e:any) {
+      } catch (e) {
         console.error("Error fetching data:", e.message);
       } finally {
         setLoading(false);
@@ -84,7 +118,7 @@ export const AuthorProfile = () => {
         {/* Left Content */}
         <div className="bg-white h-full w-full lg:w-[40%] lg:ml-[15%] lg:mr-[5%]">
           <div className="py-5">
-            <AuthorComponent  BannerKey={author?.bannerPicKey || ""}/>
+            <AuthorComponent BannerKey={author?.bannerPicKey || ""} />
             <Featured />
             <AuthorNav />
           </div>
@@ -111,23 +145,21 @@ export const AuthorProfile = () => {
           </div>
         </div>
 
-
         {/* Right Sidebar */}
         <div className="bg-white py-5 w-full lg:w-[30%] lg:mr-[15%] lg:ml-[5%] hidden lg:block">
           <div className="flex flex-col space-y-6">
             <Profile
+              Followed_user_Id={followedUser}
               ProfileKEy={author?.profilePicKey || ""}
               id={id}
               name={author?.name || "Unknown"}
-              followers={sampleUserData.followers}
+              followers={followedUser.length}
               badges={author?.tagsLiked || []}
               description={author?.about || "No description available."}
-              following={sampleUserData.following}
               lists={sampleUserData.lists}
             />
           </div>
         </div>
-        
       </div>
     </>
   );

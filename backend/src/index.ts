@@ -77,7 +77,6 @@ app.get("/image/:key", async (c, next) => {
     const image = await c.env.MY_BUCKET.get(`images/${key}`);
 
     if (image) {
-      // Return the image as a response
       return new Response(image.body, {
         headers: {
           "Content-Type": image.httpMetadata?.contentType || "application/octet-stream",
@@ -85,7 +84,6 @@ app.get("/image/:key", async (c, next) => {
         status: 200,
       });
     } else {
-      // If the image is not found
       return c.text("Image not found", 404);
     }
   } catch (e: any) {

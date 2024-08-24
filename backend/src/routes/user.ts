@@ -50,17 +50,14 @@ user.post("/onboarding", async (c) => {
   try {
     const body = await c.req.formData();
 
-    // Extract data from formData
     const rawTopics = body.get("topics");
     const profilePicKey = body.get("profilePicKey");
     const about = body.get("about");
 
-    // Validate required fields
     if (!rawTopics || !profilePicKey || !about) {
       return c.json({ error: "Missing required fields" }, 400);
     }
 
-    // Parse and validate topics
     let tagsLiked: string[];
     try {
       tagsLiked = JSON.parse(String(rawTopics));
@@ -74,15 +71,14 @@ user.post("/onboarding", async (c) => {
     const prisma = c.get("prisma");
     const userID = c.get("userId");
 
-    // Perform the update operation
     const user = await prisma.user.update({
       where: {
         id: userID,
       },
       data: {
-        about: String(about),  // Convert to string
-        tagsLiked,// Array of strings
-        profilePicKey: String(profilePicKey), // Convert to string
+        about: String(about),
+        tagsLiked,// 
+        profilePicKey: String(profilePicKey),
       },
     });
 
@@ -97,7 +93,7 @@ user.post("/onboarding", async (c) => {
 user.post("/banner", async (c) => {
   try {
     const body = await c.req.json();
-    const {bannerPicKey} = body;
+    const { bannerPicKey } = body;
 
     if (!bannerPicKey) {
       return c.json({ error: "Missing required fields" }, 400);
@@ -131,7 +127,6 @@ user.put("/follow/:id", async (c) => {
   const prisma = c.get("prisma");
 
   try {
-    // Check if the target user exists
     const user = await prisma.user.findUnique({
       where: { id: followId },
     });
@@ -139,12 +134,10 @@ user.put("/follow/:id", async (c) => {
       return c.json({ error: "User not found" }, 404);
     }
 
-    // Check if the user is trying to follow themselves
     if (user.id === myId) {
       return c.json({ error: "You can't follow yourself" }, 400);
     }
 
-    // Check if already following
     const existingFollow = await prisma.follows.findUnique({
       where: {
         followerId_followingId: {
@@ -158,7 +151,6 @@ user.put("/follow/:id", async (c) => {
       return c.json({ error: "Already following this user" }, 400);
     }
 
-    // Create a new follow relationship
     await prisma.follows.create({
       data: {
         followerId: myId,
@@ -166,25 +158,137 @@ user.put("/follow/:id", async (c) => {
       },
     });
 
-  const updatedUser = await prisma.user.update({
-    where: {
-      id: myId,
-    },
-    data: {
-      following: {
-        connect: {
-          id: followId,
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: myId,
+      },
+      data: {
+        following: {
+          connect: {
+            followerId_followingId: {
+              followerId: myId,
+              followingId: followId,
+            },
+          },
         },
       },
-    },
-  });
+    });
 
-  return c.json({ message: "User followed successfully", updatedUser });
+
+    return c.json({ message: "User followed successfully", updatedUser });
   } catch (e: any) {
     console.error(e);
     return c.json({ error: e.message }, 500);
   }
 });
+
+user.get("/relation", async (c) => {
+  const myId = c.get("userId");
+  const prisma = c.get("prisma");
+
+  try {
+    const followedUsers = await prisma.follows.findMany({
+      where: {
+        followerId: myId,
+      },
+      select: {
+        followingId: true,
+      },
+    });
+
+    return c.json({
+      followedUsers
+    })
+
+  }
+  catch (e: any) {
+    console.error(e);
+    return c.json({ error: e.message }, 500);
+
+
+  }
+
+
+});
+
+
+
+user.get("/profilelist/:id", async (c) => {
+  const prisma = c.get("prisma");
+  const user_id = c.req.param("id");
+
+  try {
+    const followedUsers = await prisma.follows.findMany({
+      where: {
+        followerId: user_id,
+      },
+      select: {
+        followingId: true,
+      },
+    });
+
+    const followedUsersData = await Promise.all(
+      followedUsers.map(async (user) => {
+        const userDetails = await prisma.user.findUnique({
+          where: {
+            id: user.followingId,
+          },
+          select: {
+            profilePicKey: true,
+            name: true,
+            id: true,
+            _count: {
+              select: { followers: true },
+            },
+          },
+        });
+
+        return {
+          profilePicKey: userDetails?.profilePicKey,
+          id: userDetails?.id,
+          name: userDetails?.name,
+          followerCount: userDetails?._count?.followers,
+        };
+      })
+    );
+
+    return c.json({
+      followedUsersData,
+    });
+
+  } catch (e: any) {
+    console.error(e);
+    return c.json({ error: e.message }, 500);
+  }
+});
+
+
+user.post("/about", async (c) => {
+  try {
+    const id = c.get("userId");
+    const prisma = c.get("prisma");
+    const body = await c.req.json();
+    const { about } = body;
+    const author = await prisma.user.update({
+      where: {
+        id
+      },
+      data: {
+        about,
+      }
+    });
+    return c.json({ author }, 200);
+  } catch (e: any) {
+    return c.json({ error: e.message }, 501);
+  }
+});
+
+
+
+
+
+
+
 
 
 
