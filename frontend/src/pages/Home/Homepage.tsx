@@ -1,13 +1,15 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { FaPlus } from "react-icons/fa";
 import config from "../../utils/config";
 import { NavBar } from "../Navbar/NavBar";
-import { PacmanLoader } from "react-spinners";
 import BlogFeedItem from "./component/BlogFeedItem";
 import BlogSidebar from "./component/BlogSidebar";
 import MediumModal from "./MediumModal";
 import RecommendedTopics from "./component/RecommendedTopics";
 import WriterSuggest from "./component/WriterSuggest";
+import BlogFeedItemSkeleton from "./skeleton/BlogFeedItemSkeleton";
+import BlogSidebarSkeleton from "./skeleton/BlogSidebarSkeleton";
+import WriterSuggestSkeleton from "./skeleton/WriterSuggestSkeleton";
 
 interface BlogData {
   id: string;
@@ -32,100 +34,67 @@ interface Item {
   createdAt: string;
 }
 
-type Data = Item[][];
+const Topic_list = ["science", "programming", "arts", "technology"];
 
-const sampleData = [
-  {
-    name: "John Doe",
-    imageUrl:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "The Great Gatsby",
-    link:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    isPublication: false,
-    onFollow: () => {
-      console.log("Followed John Doe");
-    },
-  },
-  {
-    name: "Jane Doe",
-    imageUrl:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "The Great Gatsby",
-    link:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    isPublication: false,
-    onFollow: () => {
-      console.log("Followed Jane Doe");
-    },
-  },
-  {
-    name: "John Smith",
-    imageUrl:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    description: "The Great Gatsby",
-    link:
-      "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png",
-    isPublication: false,
-    onFollow: () => {
-      console.log("Followed John Smith");
-    },
-  },
-];
+type Data = Item[][];
 
 export const Homepage = () => {
   const [data, setData] = useState<Data>([]);
   const [realData, setRealData] = useState<BlogData[]>([]);
-
   const [topData, setTopData] = useState<Data>([]);
   const [realTopData, setRealTopData] = useState<BlogData[]>([]);
-
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`${config.apiUrl}/api/v1/all`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    })
-      .then((response) => response.json())
-      .then((datas) => {
-        setData(datas);
-      })
-      .catch((error) => console.error("Error:", error))
-      .finally(() => setLoading(false));
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [allResponse, topResponse, nameResponse] = await Promise.all([
+          fetch(`${config.apiUrl}/api/v1/all`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }),
+          fetch(`${config.apiUrl}/api/v1/all/top`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }),
+          fetch(`${config.apiUrl}/api/v1/all/name`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }),
+        ]);
 
-    fetch(`${config.apiUrl}/api/v1/all/top`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    })
-      .then((response) => response.json())
-      .then((datas) => {
-        // console.log(datas);s
-        setTopData(datas);
-      })
-      .catch((error) => console.error("Error:", error));
+        const [allData, topData, nameData] = await Promise.all([
+          allResponse.json(),
+          topResponse.json(),
+          nameResponse.json(),
+        ]);
 
-    fetch(`${config.apiUrl}/api/v1/all/name`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    })
-      .then((response) => response.json())
-      .then((datas) => {
-        localStorage.setItem("userId", datas.id);
-      });
+        setData(allData);
+        setTopData(topData);
+        localStorage.setItem("userId", nameData.id);
+      } catch (error) {
+        setError("Failed to fetch data");
+        console.error("Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchData();
   }, []);
 
   const transformedData = useMemo(() => {
@@ -157,9 +126,31 @@ export const Homepage = () => {
   useEffect(() => {
     setRealData(transformedData);
     setRealTopData(transformedDataTop);
-
     console.log(transformedDataTop);
   }, [transformedData, transformedDataTop]);
+
+  const fetchPostsByTopic = useCallback(async (topic: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${config.apiUrl}/api/v1/all/filter?category=${topic}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      );
+      const data = await response.json();
+      setData(data);
+    } catch (error) {
+      setError("Failed to fetch posts by topic");
+      console.error("Error fetching posts by topic:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return (
     <>
@@ -174,18 +165,23 @@ export const Homepage = () => {
                 <li>
                   <FaPlus />
                 </li>
-                <li>For you</li>
-                <li>Following</li>
-                <li>Startup</li>
-                <li>Science</li>
-                <li>Programming</li>
+                {Topic_list.map((topic, index) => (
+                  <li
+                    onClick={() => fetchPostsByTopic(topic.toLowerCase())}
+                    key={index}
+                  >
+                    {topic}
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>
           <div className="items-end">
             {loading ? (
-              <div className="flex justify-center items-center h-screen">
-                <PacmanLoader />
+              <div className="flex flex-col gap-4">
+                <BlogFeedItemSkeleton />
+                                <BlogFeedItemSkeleton />
+
               </div>
             ) : (
               realData.map((item, index) => (
@@ -198,8 +194,6 @@ export const Homepage = () => {
                   blogContent={item.content}
                   createdAt={item.createdAt}
                 />
-                // add start feature , on post so post with high star appear top and add star feature
-                //author with high starr will appear on top
               ))
             )}
           </div>
@@ -209,15 +203,23 @@ export const Homepage = () => {
             <div>
               <h1>Top Blogs</h1>
               <div>
-                {realTopData.map((item, index) => (
-                  <BlogSidebar
-                    key={index}
-                    username={item.name}
-                    title={item.title}
-                    book="The Great Gatsby"
-                    profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                  />
-                ))}
+                {loading ? (
+                  <div className="flex flex-col gap-4">
+                    <BlogSidebarSkeleton />
+                      <BlogSidebarSkeleton />
+
+                  </div>
+                ) : (
+                  realTopData.map((item, index) => (
+                    <BlogSidebar
+                      key={index}
+                      username={item.name}
+                      title={item.title}
+                      book="The Great Gatsby"
+                      profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                    />
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -228,14 +230,18 @@ export const Homepage = () => {
             <RecommendedTopics />
           </div>
           <div>
-            {
-              // Writer Suggest
+            {loading ? (
+              <div className="flex flex-col gap-4">
+                <WriterSuggestSkeleton />
+                                <WriterSuggestSkeleton />
+
+              </div>
+            ) : (
               realTopData.map((item, index) => (
                 <WriterSuggest
                   key={index}
                   name={item.name}
                   imageUrl="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                  //this is author description needs to be implemented
                   description="The Great Gatsby"
                   user_id={item.id}
                   onFollow={() => {
@@ -243,7 +249,7 @@ export const Homepage = () => {
                   }}
                 />
               ))
-            }
+            )}
           </div>
         </div>
       </div>

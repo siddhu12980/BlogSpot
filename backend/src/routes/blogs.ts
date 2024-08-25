@@ -120,7 +120,6 @@ blogs.post("/save", async (c) => {
         const { postId } = body;
         const userId = c.get("userId");
 
-        // Check if the user and post exist
         const user = await prisma.user.findUnique({ where: { id: userId } });
         const post = await prisma.post.findUnique({ where: { id: postId } });
 
@@ -128,7 +127,6 @@ blogs.post("/save", async (c) => {
             return c.json({ error: "User or Post not found" }, 404);
         }
 
-        // Check if the post is already saved by the user
         const existingSavedPost = await prisma.user.findFirst({
             where: {
                 id: userId,
@@ -216,6 +214,33 @@ blogs.put("/", async (c) => {
         return c.json({ error: e.message }, 501);
     }
 });
+
+blogs.post("/saved-posts", async (c) => {
+    try {
+        const prisma = c.get("prisma");
+
+        const body = await c.req.json();
+        const { userId } = body;
+
+        const userWithSavedPosts = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                savedPosts: true,
+            },
+        });
+
+        if (!userWithSavedPosts) {
+            return c.json({ error: "User not found" }, 404);
+        }
+
+        return c.json({ savedPosts: userWithSavedPosts.savedPosts }, 200);
+    } catch (e: any) {
+        return c.json({ error: e.message }, 500);
+    }
+});
+
+
+
 
 
 

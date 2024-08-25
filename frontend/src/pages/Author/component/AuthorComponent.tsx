@@ -4,23 +4,20 @@ import config from "../../../utils/config";
 
 interface AuthorComponentProps {
   BannerKey: string;
+  id: string;
 }
 
-export const AuthorComponent = ({ BannerKey }: AuthorComponentProps) => {
+export const AuthorComponent = ({ BannerKey, id }: AuthorComponentProps) => {
   const [bannerUrl, setBannerUrl] = useState<string>("");
   const [banner, setBannerPic] = useState<File | null>(null);
 
-  // Handles file input change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       setBannerPic(event.target.files[0]);
       setTimeout(() => {
         console.log(banner);
         handleSubmit();
-        
       }, 1000);
-      // Trigger the image upload and update
-      
     }
   };
 
@@ -59,7 +56,6 @@ export const AuthorComponent = ({ BannerKey }: AuthorComponentProps) => {
 
   // Submits the new banner image and updates the backend
   const handleSubmit = async () => {
- 
     if (!banner) {
       console.warn("No banner image selected.");
       return;
@@ -67,7 +63,7 @@ export const AuthorComponent = ({ BannerKey }: AuthorComponentProps) => {
 
     const key: string = await handleImageUpload(banner);
     console.log("Banner key:", key);
-    
+
     if (key) {
       try {
         const response = await fetch(`${config.apiUrl}/api/v1/user/banner`, {
@@ -107,17 +103,21 @@ export const AuthorComponent = ({ BannerKey }: AuthorComponentProps) => {
         alt="Header Image"
         className="w-full h-64 object-cover"
       />
-      <div className="absolute z-10 bottom-0 right-0 bg-white p-1 rounded-full">
-        <label htmlFor="file-input">
-          <FiEdit size={22} className="text-blue-500 cursor-pointer" />
-        </label>
-        <input
-          id="file-input"
-          type="file"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-      </div>
+      {localStorage.getItem("userId") == id ? (
+        <div className="absolute z-10 bottom-0 right-0 bg-white p-1 rounded-full">
+          <label htmlFor="file-input">
+            <FiEdit size={22} className="text-blue-500 cursor-pointer" />
+          </label>
+          <input
+            id="file-input"
+            type="file"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
+      ) : (
+        <></>
+      )}
       <div className="absolute top-0 left-0 w-full h-full bg-black/50"></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white">
         <h1 className="text-3xl font-bold">Brad Yonaka</h1>

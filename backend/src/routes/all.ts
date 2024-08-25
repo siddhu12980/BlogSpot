@@ -78,9 +78,9 @@ all.get('/name', async (c) => {
 all.get("/top", async (c) => {
     try {
         const prisma = c.get("prisma");
-       
-        const post=[];
-       const top_posts = await prisma.post.findMany({
+
+        const post = [];
+        const top_posts = await prisma.post.findMany({
             orderBy: {
                 rating: 'desc'
             },
@@ -99,15 +99,57 @@ all.get("/top", async (c) => {
                 }
             });
             post[i] = [data, top_posts[i]];
-       }
-           
+        }
+
 
         return c.json(post, 200);
     }
     catch (e: any) {
         return c.json({ error: e.message }, 501);
     }
-}   )
+})
+
+all.get('/filter', async (c) => {
+    var author_data = [];
+
+    try {
+
+        const prisma = c.get('prisma');
+        const tag = c.req.query("category")?.toLowerCase();
+        const posts = await prisma.post.findMany({
+            where: {
+                tag: {
+                    has: tag, 
+                },
+            },
+        });
+
+        for (let i = 0; i < posts.length; i++) {
+
+            const data = await prisma.user.findUnique({
+                where: {
+                    id: posts[i].authorId
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true
+                }
+            });
+
+
+            author_data[i] = [data, posts[i]];
+        }
+
+
+        return c.json(author_data, 200);
+    }
+    catch (e: any) {
+        return c.json({ error: e.message }, 501);
+    }
+})
+
+
 
 
 

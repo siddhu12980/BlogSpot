@@ -4,10 +4,10 @@ import { PacmanLoader } from "react-spinners";
 import config from "../../utils/config";
 import { NavBar } from "../Navbar/NavBar";
 import AuthorComponent from "./component/AuthorComponent";
-import Featured from "../Home/Featured";
 import AuthorNav from "./component/AuthorNav";
 import BlogFeedItem from "../Home/component/BlogFeedItem";
 import Profile from "../Profile/Profile";
+import BlogFeedItemSkeleton from "../Home/skeleton/BlogFeedItemSkeleton";
 
 interface BlogData {
   id: string;
@@ -28,16 +28,7 @@ interface AuthorData {
   bannerPicKey: string;
 }
 
-const sampleUserData = {
-  following: [
-    { name: "Alice Smith", count: 456 },
-    { name: "Bob Johnson", count: 789 },
-  ],
-  lists: [
-    { title: "Favorite Blogs", count: 5 },
-    { title: "Must-Read Books", count: 3 },
-  ],
-};
+
 
 export const AuthorProfile = () => {
   const { id } = useParams();
@@ -45,6 +36,41 @@ export const AuthorProfile = () => {
   const [data, setData] = useState<BlogData[]>([]);
   const [author, setAuthor] = useState<AuthorData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [SavedPostsData, setSavedPostsData]=useState([]);
+
+const getSavedPosts = async () => {
+    try {
+        const response = await fetch(`${config.apiUrl}/api/v1/blog/saved-posts`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ userId: id }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const res = await response.json();
+
+        if (!res || !res.savedPosts) {
+            console.log("No saved posts found.");
+            return;
+        }
+
+        const transformedData = res.savedPosts.map(post => ({
+            title: post.title,
+            ...post, 
+        }));
+
+        setSavedPostsData(transformedData); 
+
+    } catch (e) {
+        console.error("Error fetching saved posts:", e.message);
+    }
+};
 
   const searchFollower = async () => {
     try {
@@ -79,13 +105,11 @@ export const AuthorProfile = () => {
 
   useEffect(() => {
     searchFollower();
-
+    getSavedPosts();
   }, [id]);
 
   useEffect(() => {
     const fetchAuthorData = async () => {
-   
-
       try {
         const response = await fetch(
           `${config.apiUrl}/api/v1/user/author/${id}`,
@@ -118,19 +142,16 @@ export const AuthorProfile = () => {
         {/* Left Content */}
         <div className="bg-white h-full w-full lg:w-[40%] lg:ml-[15%] lg:mr-[5%]">
           <div className="py-5">
-            <AuthorComponent BannerKey={author?.bannerPicKey || ""} />
-            <Featured />
-            <AuthorNav />
+            <AuthorComponent BannerKey={author?.bannerPicKey || ""}  id={id || ""}/>
+            <AuthorNav  />
           </div>
 
           {/* Blog Feed */}
           <div className="mt-8">
             {loading ? (
-              <div className="flex justify-center items-center h-screen">
-                <PacmanLoader />
-              </div>
+           <BlogFeedItemSkeleton/>
             ) : (
-              data.map((item, index) => (
+              data.map((item,index) => (
                 <BlogFeedItem
                   key={item.id}
                   post_id={item.post_id}
@@ -156,7 +177,7 @@ export const AuthorProfile = () => {
               followers={followedUser.length}
               badges={author?.tagsLiked || []}
               description={author?.about || "No description available."}
-              lists={sampleUserData.lists}
+              lists={SavedPostsData}
             />
           </div>
         </div>

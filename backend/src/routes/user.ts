@@ -285,6 +285,29 @@ user.post("/about", async (c) => {
 
 
 
+user.get("/saved", async (c) => {
+  try {
+    const id = c.get("userId");
+    const prisma = c.get("prisma");
+    const body = await c.req.json();
+    const { about } = body;
+    const author = await prisma.user.update({
+      where: {
+        id
+      },
+      data: {
+        about,
+      }
+    });
+    return c.json({ author }, 200);
+  } catch (e: any) {
+    return c.json({ error: e.message }, 501);
+  }
+});
+
+
+
+
 
 
 
