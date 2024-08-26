@@ -6,13 +6,18 @@ import { CreateBlog } from "./pages/Blog/CreateBlog";
 import { Homepage } from "./pages/Home/Homepage";
 import { AuthorProfile } from "./pages/Author/AuthorProfile";
 import Onboard from "./pages/onboarding/Onboard";
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+
+  export const queryClient = new QueryClient();
+
 function App() {
+
   return (
     <>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Onboard />} />
-
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/blog/:id" element={<Blog />} />
@@ -21,6 +26,7 @@ function App() {
           <Route path="/author/:id" element={<AuthorProfile />} />
         </Routes>
       </BrowserRouter>
+      </QueryClientProvider>
     </>
   );
 }

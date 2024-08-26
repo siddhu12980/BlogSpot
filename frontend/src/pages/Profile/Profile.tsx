@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import config from "../../utils/config";
+import { queryClient } from "../../App";
 
+//add profile pic change feature
 interface UserProps {
   name: string;
   id?: string;
@@ -38,11 +40,13 @@ export const Profile = ({
   description,
   lists,
   ProfileKEy,
+  Followed_user_Id,
 }: UserProps) => {
   const [profilePicUrl, setProfilePicUrl] = useState<string>("");
   const [followedUsers, setFollowedUsers] = useState<FollowedUser[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [newBio, setNewBio] = useState(description);
+  const [pp, setpp] = useState<File | null>(null);
 
   const handleEditClick = useCallback(() => {
     setIsEditing(true);
@@ -85,15 +89,16 @@ export const Profile = ({
       });
 
       if (response.ok) {
+        console.log(await response.json());
         console.log("Followed User");
-        fillFollowerData(); // Refresh the follower data after following
       } else {
         console.error("Failed to follow user:", response.statusText);
       }
+      queryClient.invalidateQueries({queryKey: []})
     } catch (error) {
       console.error("Error following user:", error);
     }
-  }, [id]);
+  }, []);
 
   const fillFollowerData = useCallback(async () => {
     const url = `${config.apiUrl}/api/v1/user/profilelist/${id}`;
@@ -108,7 +113,7 @@ export const Profile = ({
 
       if (response.ok) {
         const data = await response.json();
-        const followedUsersData = data.followedUsersData.map((user: any) => ({
+        const followedUsersData = data.followedUsersData.map((user) => ({
           id: user.id,
           name: user.name,
           count: user.followerCount,
@@ -123,9 +128,82 @@ export const Profile = ({
     }
   }, [id]);
 
-  const handelProfileChange = async ()=>{
+  const handelProfileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (event.target.files) {
+      const selectedFile = event.target.files[0];
+      setpp(selectedFile);
 
-  }
+      console.log(selectedFile);
+      await handleSubmitProfile(pp || selectedFile);
+    } else {
+      console.log("No image changed");
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    const url = `${config.apiUrl}/upload`;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        const data = res["image"].url;
+        const key = data.split("/").pop();
+        console.log(`Image uploaded successfully: ${file.name}`);
+        console.log("Image key:", key);
+        return key;
+      } else {
+        console.error("Upload failed:", response.statusText);
+        return "";
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return "";
+    }
+  };
+
+  const handleSubmitProfile = async (file: File) => {
+    if (!file) {
+      console.warn("No image selected.");
+      return;
+    }
+
+    const key: string = await handleImageUpload(file);
+    console.log("Profile pic key:", key);
+
+    if (key) {
+      try {
+        const response = await fetch(`${config.apiUrl}/api/v1/user/profile`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ profilePicKey: key }),
+        });
+
+        if (response.ok) {
+          console.log("Profile updated successfully");
+          setProfilePicUrl(`${config.apiUrl}/image/${key}`);
+        } else {
+          console.error("Profile update failed:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error updating profile:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     setProfilePicUrl(`${config.apiUrl}/image/${ProfileKEy}`);
@@ -137,25 +215,25 @@ export const Profile = ({
       <div className="flex flex-col items-center">
         <div className="relative w-24 h-24">
           <img
-            onClick={() => console.log("Change Author Profile Picture")}
             src={profilePicUrl || "https://i.imgur.com/V1iU36A.jpg"}
             alt={name}
             className="w-24 h-24 border border-x-cyan-100 rounded-full"
           />
-           {localStorage.getItem("userId") == id ?
-          <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full">
-             <label htmlFor="file-input">
-            <FiEdit size={22} className="text-blue-500 cursor-pointer" />
-          </label>
-          <input
-            id="file-input"
-            type="file"
-            onChange={handelProfileChange}
-            className="hidden"
-          />
-          </div>:
-          <></>
-}
+          {localStorage.getItem("userId") == id ? (
+            <div className="absolute bottom-0 right-0 bg-white p-1 rounded-full">
+              <label htmlFor="file-input-profile">
+                <FiEdit size={22} className="text-blue-500 cursor-pointer" />
+              </label>
+              <input
+                id="file-input-profile"
+                type="file"
+                onChange={handelProfileChange}
+                className="hidden"
+              />
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
         <h1 className="text-2xl font-bold mt-4">{name}</h1>
         <p className="text-gray-600 text-lg mt-2">{followers} Followers</p>
@@ -201,56 +279,59 @@ export const Profile = ({
             onClick={handleFollowClick}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
           >
-            {followedUsers.some((user) => user.id === id) ? "UnFollow" : "Follow"}
+            {Followed_user_Id.some((user) => user === id)
+              ? "UnFollow"
+              : "Follow"}
           </button>
         )}
       </div>
       <div className="mt-8">
         <h2 className="text-xl font-bold">Following</h2>
-        {
-          followedUsers.length == 0 ?
+        {followedUsers.length == 0 ? (
           <p className="pt-2">Now Followed Users</p>
-
-          :
-        <ul className="mt-4">
-          {followedUsers.map((user) => (
-            <li key={user.id} className="flex justify-between items-center py-2">
-              <div className="flex items-center">
-                <img
-                  src={`${config.apiUrl}/image/${user.profilePicKey}` || "https://i.imgur.com/V1iU36A.jpg"}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full mr-2"
-                />
-                <span className="text-gray-800">{user.name}</span>
-              </div>
-              <span className="text-gray-600">{user.count} Followers</span>
-            </li>
-          ))}
-        </ul>
-}
+        ) : (
+          <ul className="mt-4">
+            {followedUsers.map((user) => (
+              <li
+                key={user.id}
+                className="flex justify-between items-center py-2"
+              >
+                <div className="flex items-center">
+                  <img
+                    src={
+                      `${config.apiUrl}/image/${user.profilePicKey}` ||
+                      "https://i.imgur.com/V1iU36A.jpg"
+                    }
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full mr-2"
+                  />
+                  <span className="text-gray-800">{user.name}</span>
+                </div>
+                <span className="text-gray-600">{user.count} Followers</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <div className="mt-8">
         <h2 className="text-xl font-bold">Favourite Blogs</h2>
-        {
-          lists.length ==0 ?
+        {lists.length == 0 ? (
           <p className="pt-2"> No Favourite Blogs Saved</p>
-
-          :
-        <ul className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {lists.map((list) => (
-            <li key={list.id} className="bg-white rounded-md shadow-md p-4">
-              <img
-                src={"https://i.imgur.com/V1iU36A.jpg"}
-                alt={list.title}
-                className="w-full h-20 object-cover rounded-md mb-2"
-              />
-              <h3 className="text-lg font-bold">{list.title}</h3>
-            </li>
-          ))}
-        </ul>
-}
+        ) : (
+          <ul className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {lists.map((list) => (
+              <li key={list.id} className="bg-white rounded-md shadow-md p-4">
+                <img
+                  src={"https://i.imgur.com/V1iU36A.jpg"}
+                  alt={list.title}
+                  className="w-full h-20 object-cover rounded-md mb-2"
+                />
+                <h3 className="text-lg font-bold">{list.title}</h3>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
- 
     </div>
   );
 };

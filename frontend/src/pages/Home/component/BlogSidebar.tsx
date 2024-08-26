@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 interface BlogSidebarProps {
+  user_id: string;
+  post_id: string;
   username: string;
   book: string;
   title: string;
@@ -6,15 +10,20 @@ interface BlogSidebarProps {
 }
 
 const BlogSidebar = ({
+  user_id,
+  post_id,
   username,
   book,
   title,
   profilePic,
 }: BlogSidebarProps) => {
+  const navigation = useNavigate();
   return (
     <div className=" p-4  ">
       <div className="flex items-center mb-2">
-        <img
+        <img 
+                  onClick={() => navigation(`/author/${user_id}`)}
+
           src={profilePic}
           width={24}
           height={24}
@@ -25,7 +34,7 @@ const BlogSidebar = ({
           {username} - {book}
         </span>
       </div>
-      <div className=" text-xl">
+      <div onClick={() => navigation(`/blog/${post_id}`)} className=" text-xl">
         <h2>{title}</h2>
       </div>
     </div>

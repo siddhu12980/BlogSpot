@@ -180,8 +180,7 @@ export const Homepage = () => {
             {loading ? (
               <div className="flex flex-col gap-4">
                 <BlogFeedItemSkeleton />
-                                <BlogFeedItemSkeleton />
-
+                <BlogFeedItemSkeleton />
               </div>
             ) : (
               realData.map((item, index) => (
@@ -206,12 +205,13 @@ export const Homepage = () => {
                 {loading ? (
                   <div className="flex flex-col gap-4">
                     <BlogSidebarSkeleton />
-                      <BlogSidebarSkeleton />
-
+                    <BlogSidebarSkeleton />
                   </div>
                 ) : (
                   realTopData.map((item, index) => (
                     <BlogSidebar
+                      user_id={item.id}
+                      post_id={item.post_id}
                       key={index}
                       username={item.name}
                       title={item.title}
@@ -233,8 +233,7 @@ export const Homepage = () => {
             {loading ? (
               <div className="flex flex-col gap-4">
                 <WriterSuggestSkeleton />
-                                <WriterSuggestSkeleton />
-
+                <WriterSuggestSkeleton />
               </div>
             ) : (
               realTopData.map((item, index) => (

@@ -148,39 +148,56 @@ user.put("/follow/:id", async (c) => {
     });
 
     if (existingFollow) {
-      return c.json({ error: "Already following this user" }, 400);
-    }
+      await prisma.follows.delete({
+        where: {
+          followerId_followingId: {
+            followerId: myId,
+            followingId: followId,
+          },
+        },
+      });
+      const updatedUser = await prisma.user.findUnique({
+        where: {
+          id: myId,
+        },
+      });
 
-    await prisma.follows.create({
-      data: {
-        followerId: myId,
-        followingId: followId,
-      },
-    });
 
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: myId,
-      },
-      data: {
-        following: {
-          connect: {
-            followerId_followingId: {
-              followerId: myId,
-              followingId: followId,
+      return c.json({ message: "User unfollowed successfully", updatedUser });
+    } else {
+      await prisma.follows.create({
+        data: {
+          followerId: myId,
+          followingId: followId,
+        },
+      });
+
+      const updatedUser = await prisma.user.update({
+        where: {
+          id: myId,
+        },
+        data: {
+          following: {
+            connect: {
+              followerId_followingId: {
+                followerId: myId,
+                followingId: followId,
+              },
             },
           },
         },
-      },
-    });
+    
+      });
 
-
-    return c.json({ message: "User followed successfully", updatedUser });
+      return c.json({ message: "User followed successfully", updatedUser });
+    }
   } catch (e: any) {
     console.error(e);
     return c.json({ error: e.message }, 500);
   }
 });
+;
+
 
 user.get("/relation", async (c) => {
   const myId = c.get("userId");
@@ -305,6 +322,36 @@ user.get("/saved", async (c) => {
   }
 });
 
+user.post("/profile", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { profilePicKey } = body;
+
+    if (!profilePicKey) {
+      return c.json({ error: "Missing required fields" }, 400);
+    }
+
+    const prisma = c.get("prisma");
+    const userID = c.get("userId");
+
+    const user = await prisma.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        profilePicKey: String(profilePicKey),
+      },
+    });
+    console.log(user);
+
+    return c.json({ message: "Profile Picture updated successfully", user }, 200);
+  } catch (e: any) {
+    return c.json({ error: e.message }, 500);
+  }
+}
+
+
+);
 
 
 

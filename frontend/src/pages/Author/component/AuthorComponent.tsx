@@ -21,7 +21,6 @@ export const AuthorComponent = ({ BannerKey, id }: AuthorComponentProps) => {
     }
   };
 
-  // Uploads image and returns the key
   const handleImageUpload = async (file: File) => {
     const url = `${config.apiUrl}/upload`;
     const formData = new FormData();
@@ -54,7 +53,6 @@ export const AuthorComponent = ({ BannerKey, id }: AuthorComponentProps) => {
     }
   };
 
-  // Submits the new banner image and updates the backend
   const handleSubmit = async () => {
     if (!banner) {
       console.warn("No banner image selected.");
@@ -77,7 +75,7 @@ export const AuthorComponent = ({ BannerKey, id }: AuthorComponentProps) => {
 
         if (response.ok) {
           console.log("Banner updated successfully");
-          setBannerUrl(`${config.apiUrl}/image/${key}`); // Update the banner URL after successful update
+          setBannerUrl(`${config.apiUrl}/image/${key}`); 
         } else {
           console.error("Banner update failed:", response.statusText);
         }
@@ -87,7 +85,6 @@ export const AuthorComponent = ({ BannerKey, id }: AuthorComponentProps) => {
     }
   };
 
-  // Update banner URL when BannerKey or bannerUrl changes
   useEffect(() => {
     if (!BannerKey) {
       setBannerUrl("https://i.imgur.com/q6D6587.jpg");
