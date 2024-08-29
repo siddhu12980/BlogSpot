@@ -4,11 +4,11 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import config from "../../utils/config";
+import { toast, Toaster } from "sonner";
 
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  //   const [textareaHeight, setTextareaHeight] = useState("auto");
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -24,7 +24,7 @@ export const CreateBlog = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!title || !content) return alert("Please fill out all fields");
+    if (!title || !content) return toast.error("Please fill out all fields");
 
     fetch(`${config.apiUrl}/api/v1/blog`, {
       method: "POST",
@@ -41,14 +41,15 @@ export const CreateBlog = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        alert("Blog post created successfully");
+        toast.success('Post Created  SucessFully')
       })
       .catch((error) => console.error("Error:", error));
+        toast.error('Error While Creating Post')
   };
 
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  const [data, setDatas] = useState<any>([]);
+  const [data, setDatas] = useState([]);
 
   useEffect(() => {
     fetch(`${config.apiUrl}/api/v1/all/name`, {
@@ -61,7 +62,6 @@ export const CreateBlog = () => {
     })
       .then((response) => response.json())
       .then((datas) => {
-        console.log(datas);
         setDatas(datas);
       })
       .catch((error) => console.error("Error:", error));
@@ -125,7 +125,9 @@ export const CreateBlog = () => {
             />
           </div>
         </div>
+        <Toaster/>
       </div>
+      
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { PrismaClient } from '@prisma/client/edge'
-
+//add banner in post 
 const all = new Hono<{
     Bindings: {
         DATABASE_URL: string;
@@ -30,7 +30,10 @@ all.get('/', async (c) => {
                 select: {
                     id: true,
                     name: true,
-                    email: true
+                    email: true,
+                    profilePicKey:true,
+                    about:true
+                    
                 }
             });
 
@@ -61,7 +64,9 @@ all.get('/name', async (c) => {
                 select: {
                     id: true,
                     name: true,
-                    email: true
+                    email: true,
+                    profilePicKey: true,
+                    about:true
                 }
 
             }
@@ -95,7 +100,9 @@ all.get("/top", async (c) => {
                 select: {
                     id: true,
                     name: true,
-                    email: true
+                    email: true,
+                    profilePicKey:true,
+                    about:true
                 }
             });
             post[i] = [data, top_posts[i]];
@@ -133,7 +140,8 @@ all.get('/filter', async (c) => {
                 select: {
                     id: true,
                     name: true,
-                    email: true
+                    email: true,
+                    profilePicKey:true
                 }
             });
 

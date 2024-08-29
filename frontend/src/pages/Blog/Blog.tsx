@@ -72,8 +72,6 @@ const Blog = () => {
               </div>
 
               <div className="px-2">
-                {/* <p className="font-bold">{data.author}</p> */}
-                {/* <p className="text-gray-600">{data.authorData}</p> */}
               </div>
             </div>
           </div>

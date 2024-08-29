@@ -10,7 +10,8 @@ import WriterSuggest from "./component/WriterSuggest";
 import BlogFeedItemSkeleton from "./skeleton/BlogFeedItemSkeleton";
 import BlogSidebarSkeleton from "./skeleton/BlogSidebarSkeleton";
 import WriterSuggestSkeleton from "./skeleton/WriterSuggestSkeleton";
-
+import Fuse from "fuse.js";
+import useDebounce from "../../hooks/useDebounce";
 interface BlogData {
   id: string;
   post_id: string;
@@ -19,10 +20,13 @@ interface BlogData {
   content: string;
   published: boolean;
   createdAt: string;
+  profilePicKey: string;
+  about: string;
 }
 
 interface Item {
   id: string;
+  about: string;
   post_id: string;
   name: string;
   title: string;
@@ -32,11 +36,31 @@ interface Item {
   published: boolean;
   link: string;
   createdAt: string;
+  profilePicKey: string;
 }
 
 const Topic_list = ["science", "programming", "arts", "technology"];
 
 type Data = Item[][];
+
+const fuseOptions = {
+  // isCaseSensitive: false,
+  // includeScore: false,
+  // shouldSort: true,
+  // includeMatches: false,
+  // findAllMatches: false,
+  // minMatchCharLength: 1,
+  // location: 0,
+  // threshold: 0.6,
+  // distance: 100,
+  // useExtendedSearch: false,
+  // ignoreLocation: false,
+  // ignoreFieldNorm: false,
+  // fieldNormWeight: 1,
+  keys: ["title", "content"],
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 export const Homepage = () => {
   const [data, setData] = useState<Data>([]);
@@ -44,7 +68,12 @@ export const Homepage = () => {
   const [topData, setTopData] = useState<Data>([]);
   const [realTopData, setRealTopData] = useState<BlogData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500); 
+
+  // const flattenedArray = realData.flat();
+
+  const fuse = new Fuse(realData, fuseOptions);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +81,6 @@ export const Homepage = () => {
       try {
         const [allResponse, topResponse, nameResponse] = await Promise.all([
           fetch(`${config.apiUrl}/api/v1/all`, {
-            method: "GET",
             headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
@@ -60,7 +88,6 @@ export const Homepage = () => {
             },
           }),
           fetch(`${config.apiUrl}/api/v1/all/top`, {
-            method: "GET",
             headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
@@ -68,7 +95,6 @@ export const Homepage = () => {
             },
           }),
           fetch(`${config.apiUrl}/api/v1/all/name`, {
-            method: "GET",
             headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
@@ -87,7 +113,6 @@ export const Homepage = () => {
         setTopData(topData);
         localStorage.setItem("userId", nameData.id);
       } catch (error) {
-        setError("Failed to fetch data");
         console.error("Error:", error);
       } finally {
         setLoading(false);
@@ -101,7 +126,9 @@ export const Homepage = () => {
     if (!data || data.length === 0) return [];
     return data.map((item) => ({
       id: item[0].id,
+      about: item[0].about,
       name: item[0].name,
+      profilePicKey: item[0].profilePicKey,
       post_id: item[1].id,
       title: item[1].title,
       content: item[1].content,
@@ -114,7 +141,9 @@ export const Homepage = () => {
     if (!topData || topData.length === 0) return [];
     return topData.map((item) => ({
       id: item[0].id,
+      about: item[0].about,
       name: item[0].name,
+      profilePicKey: item[0].profilePicKey,
       post_id: item[1].id,
       title: item[1].title,
       content: item[1].content,
@@ -126,7 +155,10 @@ export const Homepage = () => {
   useEffect(() => {
     setRealData(transformedData);
     setRealTopData(transformedDataTop);
-    console.log(transformedDataTop);
+
+    const searchTerm = "user 1"; 
+    const result = fuse.search(searchTerm);
+    console.log("Result=",result);
   }, [transformedData, transformedDataTop]);
 
   const fetchPostsByTopic = useCallback(async (topic: string) => {
@@ -145,7 +177,6 @@ export const Homepage = () => {
       const data = await response.json();
       setData(data);
     } catch (error) {
-      setError("Failed to fetch posts by topic");
       console.error("Error fetching posts by topic:", error);
     } finally {
       setLoading(false);
@@ -215,8 +246,8 @@ export const Homepage = () => {
                       key={index}
                       username={item.name}
                       title={item.title}
-                      book="The Great Gatsby"
-                      profilePic="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                      book={item.about}
+                      profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
                     />
                   ))
                 )}
@@ -229,6 +260,8 @@ export const Homepage = () => {
           <div>
             <RecommendedTopics />
           </div>
+          <h2 className="text-xl font-bold mb-4 p-4">Who to follow</h2>
+
           <div>
             {loading ? (
               <div className="flex flex-col gap-4">
@@ -236,18 +269,26 @@ export const Homepage = () => {
                 <WriterSuggestSkeleton />
               </div>
             ) : (
-              realTopData.map((item, index) => (
-                <WriterSuggest
-                  key={index}
-                  name={item.name}
-                  imageUrl="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-                  description="The Great Gatsby"
-                  user_id={item.id}
-                  onFollow={() => {
-                    console.log("Followed John Smith");
-                  }}
-                />
-              ))
+              [
+                ...new Set(
+                  realTopData
+                    .filter(
+                      (item) => item.id !== localStorage.getItem("userId")
+                    )
+                    .map((item) => item.id)
+                ),
+              ].map((id, index) => {
+                const item = realTopData.find((item) => item.id === id);
+                return (
+                  <WriterSuggest
+                    key={index}
+                    name={item!.name}
+                    imageUrl={`${config.apiUrl}/image/${item?.profilePicKey}`}
+                    description={item?.about}
+                    user_id={item?.id || ""}
+                  />
+                );
+              })
             )}
           </div>
         </div>

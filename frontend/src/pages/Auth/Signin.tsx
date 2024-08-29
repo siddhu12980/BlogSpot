@@ -23,7 +23,7 @@ const Signin = () => {
   };
 
   const validate = (): Partial<FormData> => {
-    let errors: Partial<FormData> = {};
+    const errors: Partial<FormData> = {};
     if (!formData.email) errors.email = "Email is required";
     if (!formData.password) errors.password = "Password is required";
     return errors;
@@ -67,7 +67,6 @@ const Signin = () => {
           }
           console.log("Login successful", data);
 
-          // Save the token in localStorage
           localStorage.setItem("token", data.token);
 
           if (data.token) {

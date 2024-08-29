@@ -94,7 +94,7 @@ export const Profile = ({
       } else {
         console.error("Failed to follow user:", response.statusText);
       }
-      queryClient.invalidateQueries({queryKey: []})
+      queryClient.invalidateQueries({ queryKey: [] });
     } catch (error) {
       console.error("Error following user:", error);
     }
@@ -113,12 +113,19 @@ export const Profile = ({
 
       if (response.ok) {
         const data = await response.json();
-        const followedUsersData = data.followedUsersData.map((user) => ({
-          id: user.id,
-          name: user.name,
-          count: user.followerCount,
-          profilePicKey: user.profilePicKey,
-        }));
+        const followedUsersData = data.followedUsersData.map(
+          (user: {
+            id: string;
+            name: string;
+            followerCount: number;
+            profilePicKey: string;
+          }) => ({
+            id: user.id,
+            name: user.name,
+            count: user.followerCount,
+            profilePicKey: user.profilePicKey,
+          })
+        );
         setFollowedUsers(followedUsersData);
       } else {
         console.error("Failed to fetch follower data:", response.statusText);
