@@ -26,15 +26,15 @@ blogs.get("/:id", async (c) => {
             select: {
                 id: true,
                 name: true,
-                email: true
+                email: true,
+                profilePicKey:true,
+                about:true
             }
         });
         const blog = await prisma.post.findUnique({
             where: {
-                // authorId: c.get("userId"),
                 id: (id).toString(),
             },
-            // cacheStrategy: { swr: 60 * 3, ttl: 60 },
         })
         if (!blog) {
             return c.json({ error: "No blog found" }, 404);
@@ -65,6 +65,7 @@ blogs.post("/", async (c) => {
                 title: body.title,
                 content: body.content,
                 published: body.published,
+                post_banner: body.post_banner,
                 authorId,
             },
         });

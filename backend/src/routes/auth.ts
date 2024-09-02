@@ -41,7 +41,7 @@ auth.post("/signup", async (c) => {
             email: user.email,
             id: user.id,
             name: user.name,
-            exp: Math.floor(Date.now() / 1000) + 60 * 30, // Token expires in 5 minutes
+            // exp: Math.floor(Date.now() / 1000) + 60 * 30, // Token expires in 5 minutes
         }
         const token = await sign(payload, c.env?.JWT_SECRET)
         return c.json({ token }, 200)
