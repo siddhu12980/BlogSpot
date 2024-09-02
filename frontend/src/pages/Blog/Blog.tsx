@@ -1,27 +1,31 @@
 import { useEffect, useState } from "react";
-import { RxAvatar } from "react-icons/rx";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { RiseLoader } from "react-spinners";
 import config from "../../utils/config";
+import { NavBar } from "../Navbar/NavBar";
 
 interface UserData {
   id: string;
   name: string;
   email: string;
+  profilePicKey: string;
+  about: string;
 }
 interface BlogPost {
   id: string;
   authorId: string;
   title: string;
   content: string;
-  createdAt: string; // ISO 8601 date string
+  createdAt: string;
   published: boolean;
   tag: string[];
   userId: string | null;
+  post_banner: string;
 }
 
 const Blog = () => {
   const id = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState<BlogPost>();
   const [user, setUser] = useState<UserData>();
   const [loading, setLoading] = useState(true);
@@ -47,33 +51,48 @@ const Blog = () => {
 
   return (
     <>
+      <NavBar onSearch={() => console.log(data?.post_banner)} />
       {loading ? (
         <div className="flex justify-center items-center h-screen">
           <RiseLoader color="#000" loading={true} size={30} />
         </div>
       ) : (
-        <div className="h-screen w-full p-10 bg-slate-300 flex flex-row justify-between items-start ">
+        <div className="h-screen w-full p-10 bg-slate-100 flex flex-row justify-between  ">
           <div className="w-3/5">
             <h1 className="sm:text-5xl py-5 font-extrabold">{data?.title}</h1>
             <p className="text-gray-600 text-opacity-90 py-3">
               {" "}
-              {/* Publish at {data.date} */}
+              Publish at {data?.createdAt}
             </p>
+
+            {data?.post_banner && (
+              <img
+                className="w-[60%] h-96 object-cover"
+                src={`${config.apiUrl}/image/${data?.post_banner}`}
+                alt={data?.title}
+              />
+            )}
+
             <p className="sm:text-xl md:text-2xl">{data?.content}</p>
           </div>
-          <div className="w-2/5 flex flex-col items-center py-5">
-            <p className="text-black sm:text-2xl py-5  ">
-              Author: {user?.name}
+
+          <div
+            onClick={() => {
+              navigate(`/author/${user?.id}`);
+            }}
+            className="w-2/5 flex py-5"
+          >
+            <p className="text-black flex gap-5 sm:text-2xl pt-10">
+              <img
+                className="rounded-full w-20 h-20"
+                src={`${config.apiUrl}/image/${user?.profilePicKey}`}
+                alt={user?.id}
+              />
+              <div className="flex flex-col">
+                <p>{user?.name}</p>
+                <p> {user?.about}</p>
+              </div>
             </p>
-
-            <div className="flex ">
-              <div>
-                <RxAvatar size={20} />
-              </div>
-
-              <div className="px-2">
-              </div>
-            </div>
           </div>
         </div>
       )}

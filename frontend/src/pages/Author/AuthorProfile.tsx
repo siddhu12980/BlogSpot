@@ -7,6 +7,7 @@ import BlogFeedItem from "../Home/component/BlogFeedItem";
 import Profile from "../Profile/Profile";
 import BlogFeedItemSkeleton from "../Home/skeleton/BlogFeedItemSkeleton";
 import { useQuery } from "@tanstack/react-query";
+import { AuthorData, SavedPostData } from "../../types/interfaces";
 
 interface BlogData {
   id: string;
@@ -15,28 +16,7 @@ interface BlogData {
   content: string;
   published: boolean;
   createdAt: string;
-}
-
-interface AuthorData {
-  id: string;
-  name: string;
-  email: string;
-  about: string;
-  profilePicKey: string;
-  tagsLiked: string[];
-  bannerPicKey: string;
-}
-
-interface SavedPostData {
-  title: string;
-  id: string;
-  content: string;
-  published: boolean;
-  authorId: string;
-  userId: string;
-  createdAt: string;
-  rating: number;
-  tag: string[];
+  post_banner: string;
 }
 
 const fetchAuthorData = async (id: string) => {
@@ -122,8 +102,6 @@ export const AuthorProfile = () => {
     queryFn: () => fetchAuthorData(id!),
   });
 
-  
-
   const {
     data: savedPostData = [],
     isLoading: isSavedLoading,
@@ -163,7 +141,11 @@ export const AuthorProfile = () => {
 
   return (
     <>
-      <NavBar />
+      <NavBar
+        onSearch={() => {
+          console.log("No Search");
+        }}
+      />
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
         {/* Left Content */}
         <div className="bg-white h-full w-full lg:w-[40%] lg:ml-[15%] lg:mr-[5%]">
@@ -179,6 +161,8 @@ export const AuthorProfile = () => {
             <div className="mt-8">
               {authorData.posts.map((item) => (
                 <BlogFeedItem
+                post_banner={item.post_banner}
+                  profilePic={`${config.apiUrl}/image/${authorData.author.profilePicKey}`}
                   key={item.id}
                   post_id={item.post_id}
                   id={item.id}
@@ -195,6 +179,7 @@ export const AuthorProfile = () => {
         <div className="bg-white py-5 w-full lg:w-[30%] lg:mr-[15%] lg:ml-[5%] hidden lg:block">
           <div className="flex flex-col space-y-6">
             <Profile
+
               Followed_user_Id={followedUsersData}
               ProfileKEy={authorData.author.profilePicKey}
               id={id}

@@ -5,10 +5,19 @@ import { BsThreeDots } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import config from "../../utils/config";
 import { toast, Toaster } from "sonner";
+import { IoIosAddCircleOutline } from "react-icons/io";
 
+interface Data {
+  id: string;
+  name: string;
+  email: string;
+  profilePicKey: string;
+  about: string;
+}
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [postBannerkey, setPostBannerkey] = useState<string | null>(null);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -36,20 +45,21 @@ export const CreateBlog = () => {
       body: JSON.stringify({
         title,
         content,
+        post_banner: postBannerkey,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
-        toast.success('Post Created  SucessFully')
+        toast.success("Post Created  SucessFully");
       })
       .catch((error) => console.error("Error:", error));
-        toast.error('Error While Creating Post')
+    toast.error("Error While Creating Post");
   };
 
   const ref = useRef<HTMLTextAreaElement>(null);
 
-  const [data, setDatas] = useState([]);
+  const [data, setDatas] = useState<Data>();
 
   useEffect(() => {
     fetch(`${config.apiUrl}/api/v1/all/name`, {
@@ -67,6 +77,49 @@ export const CreateBlog = () => {
       .catch((error) => console.error("Error:", error));
   }, []);
 
+  const handelBannerInput = () => {
+    console.log("Banner Input");
+  };
+  const handelInputchange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      handleImageUpload(e.target.files[0]).then((key) => {
+        console.log("Key", key);
+        setPostBannerkey(key);
+      });
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    const url = `${config.apiUrl}/upload`;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const res = await response.json();
+        const data = res["image"].url;
+        const key = data.split("/").pop();
+        console.log(`Image uploaded successfully: ${file.name}`);
+        console.log("Image key:", key);
+
+        return key;
+      } else {
+        console.error("Upload failed:", response.statusText);
+        return "";
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
   return (
     <>
       <div>
@@ -75,8 +128,8 @@ export const CreateBlog = () => {
             <div className=" font-extrabold text-2xl">
               <Link to={"/home"}>BlogSpot</Link>
 
-              <span className=" text-sm pb-1/2 font-normal opacity-50">
-                Draft in {data.name}
+              <span className=" text-sm pb-1/2 font-normal opacity-50 p-2">
+                Draft in {data?.name}
               </span>
             </div>
             <div className="flex py-2">
@@ -104,13 +157,28 @@ export const CreateBlog = () => {
         <div className="w-3/5 flex flex-col   overflow-y-auto">
           <div className="p-3">
             <form onSubmit={handleSubmit} className="">
-              <input
-                type="text"
-                value={title}
-                onChange={handleTitleChange}
-                placeholder=" Title"
-                className="w-full p-4 pl-10 text-5xl focus:outline-none outline-none text-gray-800"
-              />
+              <div className="flex items-center">
+                <div className="relative inline-block">
+                  <button
+                    onClick={handelBannerInput}
+                    className="py-2 text-slate-400"
+                  >
+                    <IoIosAddCircleOutline size={44} />
+                  </button>
+                  <input
+                    type="file"
+                    onChange={handelInputchange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="| Title"
+                  className="w-full p-4 pl-10 text-5xl focus:outline-none outline-none text-gray-800"
+                />
+              </div>
             </form>
           </div>
           <div className="flex-1 p-4">
@@ -125,9 +193,8 @@ export const CreateBlog = () => {
             />
           </div>
         </div>
-        <Toaster/>
+        <Toaster />
       </div>
-      
     </>
   );
 };

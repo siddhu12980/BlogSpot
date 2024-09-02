@@ -20,6 +20,7 @@ interface UserProps {
     createdAt: string;
     rating: number;
     tag: string[];
+    post_banner: string;
   }[];
   ProfileKEy: string;
   Followed_user_Id: string[];
@@ -328,11 +329,18 @@ export const Profile = ({
           <ul className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             {lists.map((list) => (
               <li key={list.id} className="bg-white rounded-md shadow-md p-4">
+             
                 <img
-                  src={"https://i.imgur.com/V1iU36A.jpg"}
+                  src={
+                    list.post_banner != ""
+                      ? `${config.apiUrl}/image/${list.post_banner}`
+                      : "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                  }
                   alt={list.title}
-                  className="w-full h-20 object-cover rounded-md mb-2"
+                  className="w-full h-32 object-cover rounded-md mb-2"
+
                 />
+
                 <h3 className="text-lg font-bold">{list.title}</h3>
               </li>
             ))}

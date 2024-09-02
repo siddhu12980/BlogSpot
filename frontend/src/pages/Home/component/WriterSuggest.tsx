@@ -34,13 +34,13 @@ const SuggestionCard = ({
   );
 };
 
-const WriterSuggest = ({ name, user_id, description }: SuggestionCardProps) => {
+const WriterSuggest = ({ name, user_id, description,imageUrl }: SuggestionCardProps) => {
   return (
     <div className="p-4 bg-white bg-opacity-45 ">
       <SuggestionCard
         key={name}
         name={name}
-        imageUrl="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+        imageUrl={imageUrl}
         description={description}
         user_id={user_id}
       />

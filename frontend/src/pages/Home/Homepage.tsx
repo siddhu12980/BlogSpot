@@ -11,56 +11,11 @@ import BlogFeedItemSkeleton from "./skeleton/BlogFeedItemSkeleton";
 import BlogSidebarSkeleton from "./skeleton/BlogSidebarSkeleton";
 import WriterSuggestSkeleton from "./skeleton/WriterSuggestSkeleton";
 import Fuse from "fuse.js";
-import useDebounce from "../../hooks/useDebounce";
-interface BlogData {
-  id: string;
-  post_id: string;
-  name: string;
-  title: string;
-  content: string;
-  published: boolean;
-  createdAt: string;
-  profilePicKey: string;
-  about: string;
-}
-
-interface Item {
-  id: string;
-  about: string;
-  post_id: string;
-  name: string;
-  title: string;
-  content: string;
-  imageUrl: string;
-  description: string;
-  published: boolean;
-  link: string;
-  createdAt: string;
-  profilePicKey: string;
-}
+import { BlogData, Item } from "../../types/interfaces";
 
 const Topic_list = ["science", "programming", "arts", "technology"];
 
 type Data = Item[][];
-
-const fuseOptions = {
-  // isCaseSensitive: false,
-  // includeScore: false,
-  // shouldSort: true,
-  // includeMatches: false,
-  // findAllMatches: false,
-  // minMatchCharLength: 1,
-  // location: 0,
-  // threshold: 0.6,
-  // distance: 100,
-  // useExtendedSearch: false,
-  // ignoreLocation: false,
-  // ignoreFieldNorm: false,
-  // fieldNormWeight: 1,
-  keys: ["title", "content"],
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 export const Homepage = () => {
   const [data, setData] = useState<Data>([]);
@@ -68,12 +23,21 @@ export const Homepage = () => {
   const [topData, setTopData] = useState<Data>([]);
   const [realTopData, setRealTopData] = useState<BlogData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-    const [searchTerm, setSearchTerm] = useState('');
-  const debouncedSearchTerm = useDebounce(searchTerm, 500); 
 
-  // const flattenedArray = realData.flat();
+  const fuseOptions = {
+    keys: ["title", "content"],
+  };
 
-  const fuse = new Fuse(realData, fuseOptions);
+  const handleSearch = (debouncedSearchTerm: string) => {
+    if (debouncedSearchTerm && realData.length != 0) {
+      const fuse = new Fuse(realData, fuseOptions);
+
+      const results = fuse.search(debouncedSearchTerm).map(({ item }) => item);
+      setRealData(results);
+    } else {
+      setRealData(transformedData);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,6 +98,7 @@ export const Homepage = () => {
       content: item[1].content,
       published: item[1].published,
       createdAt: item[1].createdAt,
+      post_banner: item[1].post_banner,
     }));
   }, [data]);
 
@@ -149,16 +114,13 @@ export const Homepage = () => {
       content: item[1].content,
       published: item[1].published,
       createdAt: item[1].createdAt,
+      post_banner: item[1].post_banner,
     }));
   }, [topData]);
 
   useEffect(() => {
     setRealData(transformedData);
     setRealTopData(transformedDataTop);
-
-    const searchTerm = "user 1"; 
-    const result = fuse.search(searchTerm);
-    console.log("Result=",result);
   }, [transformedData, transformedDataTop]);
 
   const fetchPostsByTopic = useCallback(async (topic: string) => {
@@ -186,7 +148,7 @@ export const Homepage = () => {
   return (
     <>
       <div>
-        <NavBar />
+        <NavBar onSearch={handleSearch} />
       </div>
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
         <div className="bg-white h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
@@ -216,6 +178,8 @@ export const Homepage = () => {
             ) : (
               realData.map((item, index) => (
                 <BlogFeedItem
+                post_banner={item.post_banner}
+                  profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
                   key={index}
                   post_id={item.post_id}
                   id={item.id}
