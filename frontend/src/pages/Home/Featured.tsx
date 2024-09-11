@@ -22,7 +22,7 @@ const books: Book[] = [
 ];
 
 export const Featured = () => {
-  const [currentBook, setCurrentBook] = useState(books[0]);
+  const [currentBook] = useState(books[0]);
 
   return (
     <div className="container mx-auto p-4">

@@ -39,6 +39,7 @@ user.get("/author/:id", async (c) => {
         authorId: id,
       },
     });
+    console.log(posts,author);
 
     return c.json({ author, posts }, 200);
   } catch (e: any) {

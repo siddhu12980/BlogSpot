@@ -27,8 +27,8 @@ blogs.get("/:id", async (c) => {
                 id: true,
                 name: true,
                 email: true,
-                profilePicKey:true,
-                about:true
+                profilePicKey: true,
+                about: true
             }
         });
         const blog = await prisma.post.findUnique({
@@ -76,6 +76,39 @@ blogs.post("/", async (c) => {
     }
 });
 
+blogs.delete("/:id", async (c) => {
+    try {
+        const prisma = c.get("prisma");
+        const authorId = c.get("userId");
+        const id = c.req.param("id");
+
+        const blog = await prisma.post.findUnique({
+            where: {
+                id: (id).toString(),
+                authorId,
+            },
+        });
+
+        if (!blog) {
+            return c.json({ message: "No blog found" }, 404);
+        }
+
+        await prisma.post.delete({
+            where: {
+                id: (id).toString(),
+                authorId,
+            },
+        });
+
+        return c.json({
+            message: "Post deleted successfully",
+        }, 200);
+    } catch (e: any) {
+        return c.json({ error: e.message }, 501);
+    }
+}
+);
+
 blogs.post("/rate", async (c) => {
     try {
         const prisma = c.get("prisma");
@@ -105,7 +138,6 @@ blogs.post("/rate", async (c) => {
             },
 
         });
-        console.log(blog)
 
         return c.json({ blog }, 200);
     } catch (e: any) {

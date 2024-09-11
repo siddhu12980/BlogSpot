@@ -156,7 +156,7 @@ export const Homepage = () => {
             <nav className="bg-white text-sm font-normal text-black p-2 sticky top-0">
               <ul className="flex justify-evenly">
                 <li>
-                  <FaPlus />
+                  <FaPlus onClick={() => setRealData(transformedData)} />
                 </li>
                 {Topic_list.map((topic, index) => (
                   <li
@@ -178,11 +178,11 @@ export const Homepage = () => {
             ) : (
               realData.map((item, index) => (
                 <BlogFeedItem
-                post_banner={item.post_banner}
+                  post_banner={item.post_banner}
                   profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
                   key={index}
-                  post_id={item.post_id}
-                  id={item.id}
+                  id={item.post_id}
+                  authorId={item.id}
                   user={item.name}
                   title={item.title}
                   blogContent={item.content}

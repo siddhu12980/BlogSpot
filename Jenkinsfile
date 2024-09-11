@@ -4,21 +4,43 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Display files in the current workspace (before the git clone)
-                sh 'ls'
-
-                // Checkout the Git repository
                 git url: 'https://github.com/siddhu12980/BlogSpot', branch: 'main'
-                
-                // Display files in the current workspace (after the git clone)
-                sh 'ls'
+                sh 'ls' 
+            }
+        }
+        
+        stage('Deploy Frontend to EC2') {
+            steps {
+                sshagent(['your-ssh-key-credential-id']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@ec2-3-111-40-39.ap-south-1.compute.amazonaws.com << EOF
+                        # Navigate to the deployment folder on the EC2 instance
+                        cd /BlogSpot
+
+                        # Pull the latest changes
+                        git pull origin main
+
+                        # Change directory to the frontend folder
+                        cd frontend
+
+                        # Install dependencies and build the frontend
+                        npm install
+                        npm run build
+
+                        # Deploy the built frontend (adjust based on your setup)
+                        cp -r build/* /path/to/your/web/server/root/
+
+                        # Restart the web server if necessary
+                        sudo systemctl restart nginx
+                    EOF
+                    '''
+                }
             }
         }
     }
 
     post {
         always {
-            // Cleanup, notifications, or any other steps you want to run regardless of success/failure
             echo 'Pipeline completed.'
         }
     }

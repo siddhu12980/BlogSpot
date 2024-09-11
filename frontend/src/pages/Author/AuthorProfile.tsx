@@ -10,8 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 import { AuthorData, SavedPostData } from "../../types/interfaces";
 
 interface BlogData {
+  authorId: string;
   id: string;
-  post_id: string;
   title: string;
   content: string;
   published: boolean;
@@ -56,10 +56,11 @@ const fetchSavedPosts = async (userId: string) => {
     return [];
   }
 
-  const transformedData = res.savedPosts.map((post) => ({
-    title: post.title,
+  const transformedData = res.savedPosts.map((post: BlogData) => ({
     ...post,
   }));
+
+
 
   return transformedData;
 };
@@ -164,8 +165,8 @@ export const AuthorProfile = () => {
                 post_banner={item.post_banner}
                   profilePic={`${config.apiUrl}/image/${authorData.author.profilePicKey}`}
                   key={item.id}
-                  post_id={item.post_id}
                   id={item.id}
+                  authorId={item.authorId}
                   user={authorData.author.name || "Unknown"}
                   title={item.title}
                   blogContent={item.content}

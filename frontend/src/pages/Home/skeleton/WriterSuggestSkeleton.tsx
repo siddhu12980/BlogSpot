@@ -1,5 +1,3 @@
-import React from "react";
-
 const WriterSuggestSkeleton = () => {
   return (
     <div className="p-4  mb-4 flex items-center animate-pulse">
