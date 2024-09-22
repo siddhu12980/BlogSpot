@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiUpload } from "react-icons/fi";
 import config from "../../utils/config";
 
@@ -17,6 +17,15 @@ const Onboard = () => {
     "Science",
     "Art",
   ];
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      window.location.href = "/signin";
+    }
+
+
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {

@@ -1,4 +1,3 @@
 export default {
-    //  apiUrl: 'http://localhost:8787',
-    apiUrl: process.env.BACKEND_URL,
+    apiUrl: import.meta.env.VITE_BACKEND_URL,
 };
