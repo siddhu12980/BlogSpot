@@ -70,6 +70,8 @@ blogs.post("/", async (c) => {
             },
         });
 
+        console.log(blog);
+
         return c.json({ blog }, 200);
     } catch (e: any) {
         return c.json({ error: e.message }, 501);

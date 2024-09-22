@@ -1,7 +1,6 @@
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { CgProfile } from "react-icons/cg";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { BsThreeDots } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import config from "../../utils/config";
 import { toast, Toaster } from "sonner";
@@ -85,6 +84,7 @@ export const CreateBlog = () => {
       handleImageUpload(e.target.files[0]).then((key) => {
         console.log("Key", key);
         setPostBannerkey(key);
+
       });
     }
   };
@@ -109,6 +109,10 @@ export const CreateBlog = () => {
         const key = data.split("/").pop();
         console.log(`Image uploaded successfully: ${file.name}`);
         console.log("Image key:", key);
+
+        toast.success("Banner uploaded successfully");
+
+
 
         return key;
       } else {
@@ -140,7 +144,6 @@ export const CreateBlog = () => {
                 Publish
               </button>
               <div className=" mr-4 py-1 ">
-                <BsThreeDots size={30} />
               </div>
               <div className=" mr-4 py-1">
                 <IoNotificationsOutline size={30} />

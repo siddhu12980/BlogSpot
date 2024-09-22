@@ -328,8 +328,13 @@ export const Profile = ({
         ) : (
           <ul className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             {lists.map((list) => (
-              <li key={list.id} className="bg-white rounded-md shadow-md p-4">
-             
+              <li
+                key={list.id}
+                onClick={() => {
+                  window.location.href = `/blog/${list.id}`;
+                }}
+                className="bg-white rounded-md shadow-md p-4"
+              >
                 <img
                   src={
                     list.post_banner != ""
@@ -338,7 +343,6 @@ export const Profile = ({
                   }
                   alt={list.title}
                   className="w-full h-32 object-cover rounded-md mb-2"
-
                 />
 
                 <h3 className="text-lg font-bold">{list.title}</h3>
