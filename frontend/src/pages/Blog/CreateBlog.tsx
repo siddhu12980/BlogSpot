@@ -88,7 +88,7 @@ export const CreateBlog = () => {
       });
     }
   };
-
+ 
   const handleImageUpload = async (file: File) => {
     const url = `${config.apiUrl}/upload`;
     const formData = new FormData();
@@ -96,7 +96,7 @@ export const CreateBlog = () => {
 
     try {
       const response = await fetch(url, {
-        method: "PUT",
+        method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

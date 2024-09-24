@@ -157,7 +157,7 @@ export const Profile = ({
 
     try {
       const response = await fetch(url, {
-        method: "PUT",
+        method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

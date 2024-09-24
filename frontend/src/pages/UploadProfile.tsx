@@ -15,7 +15,7 @@ const UploadProfile: React.FC = () => {
 
     try {
       const response = await fetch(url, {
-        method: "PUT",
+        method: "POST",
         body: formData,
       });
 

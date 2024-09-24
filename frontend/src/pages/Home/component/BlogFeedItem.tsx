@@ -85,7 +85,6 @@ const BlogFeedItem = (data: data) => {
         res.json();
         if (res.ok) {
           toast.success("Post Deleted");
-
           queryClient.invalidateQueries({ queryKey: ["author"] });
         }
         else {
@@ -137,7 +136,6 @@ const BlogFeedItem = (data: data) => {
               {localStorage.getItem("userId") == data.authorId ? (
                 
                 <>
-                {/* {console.log(data.authorId)} */}
                   <MdDelete
                     onClick={() => handelPostDelete(data.id)}
                     size={18}

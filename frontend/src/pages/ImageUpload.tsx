@@ -24,7 +24,7 @@ const ImageUpload = () => {
 
     try {
       const response = await fetch(`${apiUrl.apiUrl}/upload`, {
-        method: "PUT",
+        method: "POST",
         body: formData,
       });
 

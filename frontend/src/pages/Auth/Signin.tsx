@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import config from "../../utils/config";
+import { toast, Toaster } from "sonner";
 
 interface FormData {
   email: string;
@@ -35,7 +36,6 @@ const Signin = () => {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      console.log("Form submitted successfully", formData);
 
       fetch(`${config.apiUrl}/api/v1/auth/signin`, {
         method: "POST",
@@ -65,16 +65,22 @@ const Signin = () => {
           if (status !== 200) {
             throw new Error(data.error || "Unknown error occurred");
           }
-          console.log("Login successful", data);
 
           localStorage.setItem("token", data.token);
+
+          toast.success("Login successful");
 
           if (data.token) {
             window.location.href = "/home";
           }
         })
         .catch((error) => {
-          console.error("Error:", error);
+          setErrors({ password: "Invalid email or password" });
+
+          toast.error("Invalid email or password");
+
+          console.error("Login failed:", error);
+
         });
 
       setFormData({
@@ -167,14 +173,14 @@ const Signin = () => {
         <div className="w-1/2 bg-gray-200 h-screen flex justify-center items-center">
           <div className="sm:max-w-lg w-full">
             <div className="font-bold text-2xl">
-              "The customer service is amazing. I can't wait to buy more. The
-              support team went above and beyond to help me. I am very happy
-              with the results. I will definitely recommend this to my friends."
+              "A great revolution starts with pen and paper, but a greater
+              revolution begins with a single click of a button."
             </div>
-            <div className="pt-5 font-medium text-xl">Mr Xyz</div>
-            <div className="text-sm opacity-35">CEO, XYZ company</div>
+            <div className="pt-5 font-medium text-xl">Mr X</div>
+            <div className="text-sm opacity-35">CEO, X company</div>
           </div>
         </div>
+        <Toaster />
       </div>
     </>
   );

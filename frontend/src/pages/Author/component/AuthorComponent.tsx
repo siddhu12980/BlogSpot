@@ -28,7 +28,7 @@ export const AuthorComponent = ({ BannerKey, id }: AuthorComponentProps) => {
 
     try {
       const response = await fetch(url, {
-        method: "PUT",
+        method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
