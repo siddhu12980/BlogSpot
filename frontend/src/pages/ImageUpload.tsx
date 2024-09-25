@@ -22,6 +22,8 @@ const ImageUpload = () => {
     const formData = new FormData();
     formData.append("file", selectedFile);
 
+    console.error("url",apiUrl.apiUrl)
+
     try {
       const response = await fetch(`${apiUrl.apiUrl}/upload`, {
         method: "POST",
@@ -38,8 +40,8 @@ const ImageUpload = () => {
         const errorMessage = await response.text();
         setError(errorMessage);
       }
-    } catch (e:any) {
-      setError(e.message);
+    } catch (e) {
+      setError((e as Error).message);
     }
   };
 
@@ -57,8 +59,8 @@ const ImageUpload = () => {
           const errorMessage = await response.text();
           setError(errorMessage);
         }
-      } catch (e:any) {
-        setError(e.message);
+      } catch (e) {
+        setError((e as Error).message);
       }
     };
 

@@ -32,10 +32,13 @@ const fetchAuthorData = async (id: string) => {
 
   const result = await response.json();
 
+  console.log("author details", result);
+
   return result;
 };
 
 const fetchSavedPosts = async (userId: string) => {
+  console.log("Fetching saved posts for user", userId);
   const response = await fetch(`${config.apiUrl}/api/v1/blog/saved-posts`, {
     method: "POST",
     headers: {
@@ -55,12 +58,11 @@ const fetchSavedPosts = async (userId: string) => {
     console.log("No saved posts found.");
     return [];
   }
+  console.log(" transformed Data ", res.savedPosts.savedPosts);
 
-  const transformedData = res.savedPosts.map((post: BlogData) => ({
+  const transformedData = res.savedPosts.savedPosts.map((post: BlogData) => ({
     ...post,
   }));
-
-
 
   return transformedData;
 };
@@ -88,6 +90,8 @@ const fetchFollowedUsers = async () => {
   const data: string[] = res.followedUsers.map(
     (user: { followingId: string }) => user.followingId
   );
+
+  console.log("Followed Users", data);
   return data;
 };
 
@@ -151,19 +155,21 @@ export const AuthorProfile = () => {
         {/* Left Content */}
         <div className="bg-white h-full w-full lg:w-[40%] lg:ml-[15%] lg:mr-[5%]">
           <div className="py-5">
-            <AuthorComponent
-              BannerKey={authorData.author.bannerPicKey}
-              id={id || ""}
-            />
-            <AuthorNav />
+            {authorData.author && (
+              <>
+                <AuthorComponent
+                  id={id || ""}
+                  name={authorData.author.name || ""}
+                />
+                <AuthorNav />
+              </>
+            )}
           </div>
 
           {!!authorData.posts.length && (
             <div className="mt-8">
               {authorData.posts.map((item) => (
                 <BlogFeedItem
-                post_banner={item.post_banner}
-                  profilePic={`${config.apiUrl}/image/${authorData.author.profilePicKey}`}
                   key={item.id}
                   id={item.id}
                   authorId={item.authorId}
@@ -179,17 +185,18 @@ export const AuthorProfile = () => {
 
         <div className="bg-white py-5 w-full lg:w-[30%] lg:mr-[15%] lg:ml-[5%] hidden lg:block">
           <div className="flex flex-col space-y-6">
-            <Profile
-
-              Followed_user_Id={followedUsersData}
-              ProfileKEy={authorData.author.profilePicKey}
-              id={id}
-              name={authorData.author.name}
-              followers={followedUsersData.length}
-              badges={authorData.author.tagsLiked}
-              description={authorData.author.about}
-              lists={savedPostData}
-            />
+            {authorData.author && (
+              <Profile
+                Followed_user_Id={followedUsersData}
+                ProfileKEy=""
+                id={id}
+                name={authorData.author.name || "Unknown"}
+                followers={followedUsersData.length}
+                badges={authorData.author.tagsLiked}
+                description={authorData.author.about}
+                lists={savedPostData}
+              />
+            )}
           </div>
         </div>
       </div>

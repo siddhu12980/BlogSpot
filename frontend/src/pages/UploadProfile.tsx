@@ -21,7 +21,7 @@ const UploadProfile: React.FC = () => {
 
       if (response.ok) {
         console.log(`Image uploaded successfully: ${file.name}`);
-        navigate("/home");
+        navigate("/");
       } else {
         console.error("Upload failed:", response.statusText);
       }

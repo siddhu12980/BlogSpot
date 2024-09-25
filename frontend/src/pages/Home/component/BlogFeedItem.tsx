@@ -13,8 +13,6 @@ interface data {
   createdAt: string;
   authorId: string;
   id: string;
-  profilePic: string;
-  post_banner: string;
 }
 const BlogFeedItem = (data: data) => {
   const nagivate = useNavigate();
@@ -70,7 +68,7 @@ const BlogFeedItem = (data: data) => {
   }
 
   function handelAuthorpage() {
-    nagivate(`/author/${data.id}`);
+    nagivate(`/author/${data.authorId}`);
   }
 
   async function handelPostDelete(postId: string) {
@@ -85,10 +83,10 @@ const BlogFeedItem = (data: data) => {
         res.json();
         if (res.ok) {
           toast.success("Post Deleted");
+
           queryClient.invalidateQueries({ queryKey: ["author"] });
-        }
-        else {
-          toast.error( "You are not authorized to delete this post");
+        } else {
+          toast.error("You are not authorized to delete this post");
         }
       })
       .catch((err) => {
@@ -100,7 +98,7 @@ const BlogFeedItem = (data: data) => {
     <div className="flex flex-col mb-4 p-4 bg-white  ">
       <div className="flex items-center mb-2">
         <img
-          src={data.profilePic}
+          src="https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
           alt={data.user}
           className="w-10 h-10 rounded-full mr-2"
         />
@@ -134,7 +132,6 @@ const BlogFeedItem = (data: data) => {
               <FaComment size={18} className="text-gray-600 mr-2" />
 
               {localStorage.getItem("userId") == data.authorId ? (
-                
                 <>
                   <MdDelete
                     onClick={() => handelPostDelete(data.id)}
@@ -142,36 +139,33 @@ const BlogFeedItem = (data: data) => {
                     className="text-gray-600 mr-2"
                   />
                 </>
-              ) 
-              : (
+              ) : (
                 <>
-                {console.log(data.authorId)}
+                  {console.log(data.authorId)}
 
-                <FaStar
-                  onClick={() => handeleStar(data.id, data.authorId)}
-                  size={18}
-                  className="text-gray-600 mr-2"
-                />
+                  <FaStar
+                    onClick={() => handeleStar(data.id, data.authorId)}
+                    size={18}
+                    className="text-gray-600 mr-2"
+                  />
                 </>
               )}
             </div>
 
             <div className="flex items-center flex-shrink-0">
-              <FaSave
-                onClick={() => handleSavePost(data.id)}
-                size={18}
-                className="text-gray-600 mr-2"
-              />
+              {localStorage.getItem("userId") != data.authorId && (
+                <FaSave
+                  onClick={() => handleSavePost(data.id)}
+                  size={18}
+                  className="text-gray-600 mr-2"
+                />
+              )}
               <DropMenu />
             </div>
           </div>
         </div>
         <img
-          src={
-            data.post_banner !== ""
-              ? `${config.apiUrl}/image/${data.post_banner}`
-              : "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
-          }
+          src="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
           alt="Blog Image"
           className="lg:w-2/5 w-full h-40 lg:h-20 rounded-md object-cover"
         />

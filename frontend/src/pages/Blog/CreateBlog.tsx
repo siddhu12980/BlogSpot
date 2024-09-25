@@ -16,7 +16,6 @@ interface Data {
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [postBannerkey, setPostBannerkey] = useState<string | null>(null);
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -44,7 +43,6 @@ export const CreateBlog = () => {
       body: JSON.stringify({
         title,
         content,
-        post_banner: postBannerkey,
       }),
     })
       .then((response) => response.json())
@@ -61,7 +59,7 @@ export const CreateBlog = () => {
   const [data, setDatas] = useState<Data>();
 
   useEffect(() => {
-    fetch(`${config.apiUrl}/api/v1/all/name`, {
+    fetch(`${config.apiUrl}/api/v1/user/name`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -76,53 +74,9 @@ export const CreateBlog = () => {
       .catch((error) => console.error("Error:", error));
   }, []);
 
-  const handelBannerInput = () => {
-    console.log("Banner Input");
-  };
-  const handelInputchange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      handleImageUpload(e.target.files[0]).then((key) => {
-        console.log("Key", key);
-        setPostBannerkey(key);
 
-      });
-    }
-  };
  
-  const handleImageUpload = async (file: File) => {
-    const url = `${config.apiUrl}/upload`;
-    const formData = new FormData();
-    formData.append("file", file);
 
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        const res = await response.json();
-        const data = res["image"].url;
-        const key = data.split("/").pop();
-        console.log(`Image uploaded successfully: ${file.name}`);
-        console.log("Image key:", key);
-
-        toast.success("Banner uploaded successfully");
-
-
-
-        return key;
-      } else {
-        console.error("Upload failed:", response.statusText);
-        return "";
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    }
-  };
 
   return (
     <>
@@ -130,7 +84,7 @@ export const CreateBlog = () => {
         <nav className="bg-white text-black p-4 sticky top-0">
           <div className="flex justify-between">
             <div className=" font-extrabold text-2xl">
-              <Link to={"/home"}>BlogSpot</Link>
+              <Link to={"/"}>BlogSpot</Link>
 
               <span className=" text-sm pb-1/2 font-normal opacity-50 p-2">
                 Draft in {data?.name}
@@ -163,14 +117,12 @@ export const CreateBlog = () => {
               <div className="flex items-center">
                 <div className="relative inline-block">
                   <button
-                    onClick={handelBannerInput}
                     className="py-2 text-slate-400"
                   >
                     <IoIosAddCircleOutline size={44} />
                   </button>
                   <input
                     type="file"
-                    onChange={handelInputchange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </div>

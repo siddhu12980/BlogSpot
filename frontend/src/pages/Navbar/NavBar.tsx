@@ -6,14 +6,21 @@ import { CgProfile } from "react-icons/cg";
 import { useState, useRef, useEffect } from "react";
 import { searchprops } from "../../types/interfaces";
 
-
 export const NavBar = ({ onSearch }: searchprops) => {
   const navigate = useNavigate();
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const [isNotificationDropdownOpen, setIsNotificationDropdownOpen] = useState(
+    false
+  );
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleProfileClick = () => {
     setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
+
+  const handelNotiClick = () => {
+    setIsNotificationDropdownOpen(!isNotificationDropdownOpen);
   };
 
   const handleProfileOptionClick = (option: string) => {
@@ -50,10 +57,7 @@ export const NavBar = ({ onSearch }: searchprops) => {
     <nav className="bg-white text-black p-2 sticky top-0">
       <div className="flex justify-between">
         <div className="font-extrabold flex text-2xl">
-          <div
-            onClick={() => navigate(`/home`)}
-            className="pt-3.5 cursor-pointer"
-          >
+          <div onClick={() => navigate(`/`)} className="pt-3.5 cursor-pointer">
             BlogSpot
           </div>
           <div>
@@ -67,7 +71,17 @@ export const NavBar = ({ onSearch }: searchprops) => {
             </Link>
           </div>
           <div className="mr-4 py-1">
-            <IoNotificationsOutline size={30} />
+            <IoNotificationsOutline size={30} onClick={handelNotiClick} />
+            {isNotificationDropdownOpen && (
+              <div
+                ref={dropdownRef}
+                className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg"
+              >
+                <div className="cursor-pointer px-4 py-2 hover:bg-gray-200">
+                  No Notification
+                </div>
+              </div>
+            )}
           </div>
           <div className="relative py-1">
             <CgProfile

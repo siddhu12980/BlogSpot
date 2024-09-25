@@ -27,7 +27,7 @@ const Onboard = () => {
     if (!token) {
       window.location.href = "/signin";
     } else {
-      window.location.href = "/home";
+      window.location.href = "/";
     }
 
     return () => {

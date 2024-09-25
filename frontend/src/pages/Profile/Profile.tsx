@@ -151,11 +151,12 @@ export const Profile = ({
   };
 
   const handleImageUpload = async (file: File) => {
-    const url = `${config.apiUrl}/upload`;
+    const url =  `${config.apiUrl}/upload`;
     const formData = new FormData();
     formData.append("file", file);
 
     try {
+
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -164,12 +165,23 @@ export const Profile = ({
         body: formData,
       });
 
+
       if (response.ok) {
+
         const res = await response.json();
+      console.log("Uploading image------------:");
+      console.log("res:",res); 
+
         const data = res["image"].url;
+      console.log("Uploading image1------------:");
+
         const key = data.split("/").pop();
+      console.log("Uploading image12------------:");
+
         console.log(`Image uploaded successfully: ${file.name}`);
         console.log("Image key:", key);
+      console.log("Uploading image13------------:");
+
         return key;
       } else {
         console.error("Upload failed:", response.statusText);
@@ -211,6 +223,9 @@ export const Profile = ({
         console.error("Error updating profile:", error);
       }
     }
+    else{
+      console.error("Error updating profile: No key Found");
+    }
   };
 
   useEffect(() => {
@@ -223,7 +238,7 @@ export const Profile = ({
       <div className="flex flex-col items-center">
         <div className="relative w-24 h-24">
           <img
-            src={profilePicUrl || "https://i.imgur.com/V1iU36A.jpg"}
+            src={profilePicUrl || "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"}
             alt={name}
             className="w-24 h-24 border border-x-cyan-100 rounded-full"
           />
@@ -307,8 +322,8 @@ export const Profile = ({
                 <div className="flex items-center">
                   <img
                     src={
-                      `${config.apiUrl}/image/${user.profilePicKey}` ||
-                      "https://i.imgur.com/V1iU36A.jpg"
+                      // `${config.apiUrl}/image/${user.profilePicKey}` ||
+                      "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
                     }
                     alt={user.name}
                     className="w-8 h-8 rounded-full mr-2"

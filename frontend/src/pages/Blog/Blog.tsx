@@ -85,7 +85,8 @@ const Blog = () => {
             <p className="text-black flex gap-5 sm:text-2xl pt-10">
               <img
                 className="rounded-full w-20 h-20"
-                src={`${config.apiUrl}/image/${user?.profilePicKey}`}
+                // src={`${config.apiUrl}/image/${user?.profilePicKey}`}
+                src="https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
                 alt={user?.id}
               />
               <div className="flex flex-col">

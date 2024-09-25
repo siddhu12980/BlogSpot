@@ -18,6 +18,7 @@ const Topic_list = ["science", "programming", "arts", "technology"];
 type Data = Item[][];
 
 export const Homepage = () => {
+  const [refresh, setRefresh] = useState<boolean>(false);
   const [data, setData] = useState<Data>([]);
   const [realData, setRealData] = useState<BlogData[]>([]);
   const [topData, setTopData] = useState<Data>([]);
@@ -40,25 +41,29 @@ export const Homepage = () => {
   };
 
   useEffect(() => {
+    if(localStorage.getItem("token") === null) {
+      window.location.href = "/signin";
+    }
+    
     const fetchData = async () => {
       setLoading(true);
       try {
         const [allResponse, topResponse, nameResponse] = await Promise.all([
-          fetch(`${config.apiUrl}/api/v1/all`, {
+          fetch(`${config.apiUrl}/api/v1/blog/all`, {
             headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
               Authorization: "Bearer " + localStorage.getItem("token"),
             },
           }),
-          fetch(`${config.apiUrl}/api/v1/all/top`, {
+          fetch(`${config.apiUrl}/api/v1/blog/top`, {
             headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
               Authorization: "Bearer " + localStorage.getItem("token"),
             },
           }),
-          fetch(`${config.apiUrl}/api/v1/all/name`, {
+          fetch(`${config.apiUrl}/api/v1/user/name`, {
             headers: {
               "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
@@ -73,6 +78,10 @@ export const Homepage = () => {
           nameResponse.json(),
         ]);
 
+        console.log("All Data", allData);
+        console.log("Top Data", topData);
+        console.log("Name Data", nameData);
+
         setData(allData);
         setTopData(topData);
         localStorage.setItem("userId", nameData.id);
@@ -84,9 +93,10 @@ export const Homepage = () => {
     };
 
     fetchData();
-  }, []);
+  }, [refresh]);
 
   const transformedData = useMemo(() => {
+    console.log(data);
     if (!data || data.length === 0) return [];
     return data.map((item) => ({
       id: item[0].id,
@@ -127,7 +137,7 @@ export const Homepage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${config.apiUrl}/api/v1/all/filter?category=${topic}`,
+        `${config.apiUrl}/api/v1/blog/filter?category=${topic}`,
         {
           method: "GET",
           headers: {
@@ -158,6 +168,7 @@ export const Homepage = () => {
                 <li>
                   <FaPlus onClick={() => setRealData(transformedData)} />
                 </li>
+                <li onClick={() => setRefresh(!refresh)}>All</li>
                 {Topic_list.map((topic, index) => (
                   <li
                     onClick={() => fetchPostsByTopic(topic.toLowerCase())}
@@ -175,11 +186,11 @@ export const Homepage = () => {
                 <BlogFeedItemSkeleton />
                 <BlogFeedItemSkeleton />
               </div>
+            ) : realData.length === 0 ? (
+              <div className="text-center text-gray-500">No blogs found</div>
             ) : (
               realData.map((item, index) => (
                 <BlogFeedItem
-                  post_banner={item.post_banner}
-                  profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
                   key={index}
                   id={item.post_id}
                   authorId={item.id}
@@ -211,7 +222,7 @@ export const Homepage = () => {
                       username={item.name}
                       title={item.title}
                       book={item.about}
-                      profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
+                      // profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
                     />
                   ))
                 )}
@@ -247,7 +258,8 @@ export const Homepage = () => {
                   <WriterSuggest
                     key={index}
                     name={item!.name}
-                    imageUrl={`${config.apiUrl}/image/${item?.profilePicKey}`}
+                    // imageUrl={`${config.apiUrl}/image/${item?.profilePicKey}`}
+                    imageUrl="https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
                     description={item?.about}
                     user_id={item?.id || ""}
                   />

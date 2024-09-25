@@ -30,7 +30,7 @@ const Signup = () => {
   };
 
   const validate = (): Partial<FormData> => {
-    let errors: Partial<FormData> = {};
+    const errors: Partial<FormData> = {};
     if (!formData.username) errors.username = "Username is required";
     if (!formData.email) errors.email = "Email is required";
     if (!formData.password) errors.password = "Password is required";
@@ -85,14 +85,11 @@ const Signup = () => {
           if (data.token) {
             window.location.href = "/";
           }
-          // Redirect to the user's dashboard or another page on successful login
         })
 
         .catch((error) => {
           console.error("Error:", error);
-          // Handle error (e.g., display an error message to the user)
         });
-      // Reset form
       setFormData({
         username: "",
         email: "",

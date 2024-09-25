@@ -71,7 +71,7 @@ const Signin = () => {
           toast.success("Login successful");
 
           if (data.token) {
-            window.location.href = "/home";
+            window.location.href = "/";
           }
         })
         .catch((error) => {
