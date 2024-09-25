@@ -20,7 +20,9 @@ jobs:
       run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
     - name: Build the Docker image
-      run: docker build -t siddjuugi/medium-app .
+      run: |
+        cd backend  # Change to the backend directory
+        docker build -t siddjuugi/medium-app .
 
     - name: Push the Docker image
       run: docker push siddjuugi/medium-app
