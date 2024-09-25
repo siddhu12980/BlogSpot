@@ -15,10 +15,6 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <Routes>
-q            {localStorage.getItem("token") === null
-              ? (window.location.href = "/signin")
-              : null}
-
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/blog/:id" element={<Blog />} />
