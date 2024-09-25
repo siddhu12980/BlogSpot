@@ -18,7 +18,7 @@ app.use(cors())
 app.use(express.json());
 
 
-app.get("/", (req, res) => {
+app.get("/", (req:Request, res:Response) => {
     res.json({
       msg: "healthy",
     });
@@ -31,13 +31,6 @@ app.use("/api/v1/blog",  authMiddleware,blogFetRouter)
 
 app.use("/api/v1/blog",  authMiddleware,blogRouter)
 
-app.use("*", (req, res) => {
-    res.json({
-      msg: "invalid url",
-    });
-  });
-
-  
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
