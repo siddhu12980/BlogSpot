@@ -6,40 +6,54 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
     - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-    - name: Build the Docker image
-      run: |
-        cd backend  # Change to the backend directory
-        docker build -t siddjuugi/medium-app .
-
-    - name: Push the Docker image
-      run: docker push siddjuugi/medium-app
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        push: true
+        tags: |
+          siddjuugi/medium-app:latest
+          siddjuugi/medium-app:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build
-
+    needs: build-and-push
     steps:
-    - name: SSH into EC2 and deploy
+    - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
-        key: ${{ secrets.EC2_KEY }}
+        key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull siddjuugi/medium-app
-          docker stop $(docker ps -q --filter "ancestor=siddjuugi/medium-app")
-          docker run -d -p 80:3000 siddjuugi/medium-app
+          docker pull siddjuugi/medium-app:latest
+          docker stop medium-app || true
+          docker rm medium-app || true
+          docker run -d --name medium-app -p 80:3000 siddjuugi/medium-app:latest
+          if [ $? -ne 0 ]; then
+            echo "Deployment failed"
+            exit 1
+          fi
 
+    - name: Notify on failure
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: Deployment failed!
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
