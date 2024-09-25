@@ -56,7 +56,7 @@ jobs:
             sudo docker stop medium-app || true
             sudo docker rm medium-app || true
             echo "Old container stopped and removed"
-            sudo docker run -d --name medium-app -p 80:3000  -e DATABASE_URL=${{ secrets.DB_URL}} -e JWT_SECRET=${{ secrets.JWT_SECRET }}  siddjuugi/medium-app:latest
+            sudo docker run -d --name medium-app -p 8080:3000  -e DATABASE_URL=${{ secrets.DB_URL}} -e JWT_SECRET=${{ secrets.JWT_SECRET }}  siddjuugi/medium-app:latest
             if [ $? -ne 0 ]; then
               echo "Docker run command failed"
               exit 1
