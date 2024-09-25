@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 
 import client from "../../db"
+type FollowedUserRelation = {
+    followingId: string; // This matches the shape of the Follows model.
+};
+
 
 const prisma = client;
 export const getUserDetailsController = async (req: Request, res: Response) => {
@@ -154,7 +158,7 @@ export const getProfileListController = async (req: Request, res: Response) => {
         });
 
         const followedUsersData = await Promise.all(
-            followedUsers.map(async (user) => {
+            followedUsers.map(async (user:FollowedUserRelation) => {
                 const userDetails = await prisma.user.findUnique({
                     where: {
                         id: user.followingId,
