@@ -40,14 +40,15 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
           script: |
             echo "Starting deployment..."
-            docker pull siddjuugi/medium-app:latest
+            sudo docker pull siddjuugi/medium-app:latest
             echo "Image pulled successfully"
-            docker stop medium-app || true
-            docker rm medium-app || true
+            sudo docker stop medium-app || true
+            sudo docker rm medium-app || true
             echo "Old container stopped and removed"
-            docker run -d --name medium-app -p 80:3000 siddjuugi/medium-app:latest
+            sudo docker run -d --name medium-app -p 80:3000 siddjuugi/medium-app:latest
             if [ $? -ne 0 ]; then
               echo "Docker run command failed"
               exit 1
