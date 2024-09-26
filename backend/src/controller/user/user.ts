@@ -1,12 +1,84 @@
 import { Request, Response } from 'express';
 
 import client from "../../db"
+import { compareSync } from 'bcrypt';
 type FollowedUserRelation = {
     followingId: string; // This matches the shape of the Follows model.
 };
 
 
 const prisma = client;
+
+
+export const deleteSavedPostController = async (req: Request, res: Response) => {
+    try {
+        const  postId  = req.params.id;
+
+        if (!postId) {
+            return res.status(400).json({ error: "Post ID is required" });
+        }
+
+        const userId = res.locals.user.id;
+
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                savedPosts: {
+                    disconnect: { id: postId },
+                },
+            },
+            include: { savedPosts: true }, 
+        });
+
+        return res.status(200).json({ user });
+    } catch (error: any) {
+        console.error("Error deleting saved post:", error); 
+        return res.status(500).json({ error: error.message || "Internal Server Error" });
+    }
+};
+
+
+export const uploadProfilePicController = async (req: Request, res: Response) => {
+    try {
+        const id = res.locals.user.id;
+        const { profilePicKey, userId } = req.body;
+
+        if (userId !== id) {
+            return res.status(401).json({ error: "Unauthorized" })
+        }
+
+        const user = await prisma.user.update({
+            where: { id },
+            data: { profilePicKey },
+        });
+
+        return res.status(200).json({ user });
+    } catch (error: any) {
+        return res.status(501).json({ error: error.message });
+    }
+}
+
+
+export const uploadBannerController = async (req: Request, res: Response) => {
+    try {
+        const id = res.locals.user.id;
+        const { bannerPicKey, userId } = req.body;
+
+        if (userId !== id) {
+            return res.status(401).json({ error: "Unauthorized" })
+        }
+
+        const user = await prisma.user.update({
+            where: { id },
+            data: { bannerPicKey },
+        });
+
+        return res.status(200).json({ user });
+    } catch (error: any) {
+        return res.status(501).json({ error: error.message });
+    }
+}
+
 export const getUserDetailsController = async (req: Request, res: Response) => {
     try {
         const userId = res.locals.user.id;
@@ -26,7 +98,7 @@ export const getUserDetailsController = async (req: Request, res: Response) => {
 
         return res.json(userData);
     } catch (e: any) {
-        console.error(e);   
+        console.error(e);
         return res.status(501).json({ error: e.message });
     }
 };
@@ -35,7 +107,7 @@ export const getUserDetailsController = async (req: Request, res: Response) => {
 
 export const getAuthorWithPostsController = async (req: Request, res: Response) => {
     try {
-        const id = req.params.id;  
+        const id = req.params.id;
 
         const author = await prisma.user.findUnique({
             where: { id },
@@ -131,7 +203,7 @@ export const followRelationController = async (req: Request, res: Response) => {
             where: {
                 followerId: myId,
             },
-            
+
             select: {
                 followingId: true,
             },
@@ -158,7 +230,7 @@ export const getProfileListController = async (req: Request, res: Response) => {
         });
 
         const followedUsersData = await Promise.all(
-            followedUsers.map(async (user:FollowedUserRelation) => {
+            followedUsers.map(async (user: FollowedUserRelation) => {
                 const userDetails = await prisma.user.findUnique({
                     where: {
                         id: user.followingId,
@@ -181,9 +253,6 @@ export const getProfileListController = async (req: Request, res: Response) => {
                 };
             })
         );
-
-        console.log("Followed Users ",followedUsersData); 
-
         return res.json({ followedUsersData });
     } catch (error: any) {
         return res.status(500).json({ error: error.message });
@@ -216,7 +285,7 @@ export const getSavedPostsController = async (req: Request, res: Response) => {
             select: {
                 savedPosts: true,
             },
-        });      
+        });
 
         return res.status(200).json({ savedPosts });
     } catch (error: any) {

@@ -57,6 +57,7 @@ export const createBlogController = async (req: Request, res: Response) => {
                 content: body.content,
                 published: body.published,
                 post_banner: body.post_banner,
+                tag:body.tag,
                 authorId,
             },
         });
