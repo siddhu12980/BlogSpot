@@ -34,7 +34,6 @@ const ImageUpload = () => {
         const data = await response.json();
         const imageKey = data.image.url.split("/").pop();
         setUploadKey(imageKey);
-        console.log(`Image uploaded successfully: ${imageKey}`);
         setError(null);
       } else {
         const errorMessage = await response.text();

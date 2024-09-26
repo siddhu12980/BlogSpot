@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import apiUrl from "../utils/config";
 import { useNavigate } from "react-router-dom";
+import { toast, Toaster } from "sonner";
 
 interface ProfilePictureUploadProps {
   onUpload: (file: File) => void;
@@ -20,10 +21,12 @@ const UploadProfile: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log(`Image uploaded successfully: ${file.name}`);
+        toast.success("Image uploaded successfully");
+
         navigate("/");
       } else {
-        console.error("Upload failed:", response.statusText);
+        const errorMessage = await response.text();
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -85,6 +88,7 @@ export const Upload: React.FC<ProfilePictureUploadProps> = ({ onUpload }) => {
           onChange={handleFileChange}
         />
       </label>
+      <Toaster/>
     </div>
   );
 };

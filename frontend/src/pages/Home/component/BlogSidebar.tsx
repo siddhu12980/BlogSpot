@@ -6,7 +6,7 @@ interface BlogSidebarProps {
   username: string;
   book: string;
   title: string;
-  // profilePic: string;
+  profilePic: string | null;
 }
 
 const BlogSidebar = ({
@@ -15,16 +15,18 @@ const BlogSidebar = ({
   username,
   book,
   title,
-  // profilePic,
+  profilePic,
 }: BlogSidebarProps) => {
   const navigation = useNavigate();
   return (
-    <div className=" p-4  ">
+    <div className=" p-4  border-b-2 border-l-2  shadow-sm  ">
       <div className="flex items-center mb-2">
-        <img 
-                  onClick={() => navigation(`/author/${user_id}`)}
-
-          src={"https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"}
+        <img
+          onClick={() => navigation(`/author/${user_id}`)}
+          src={
+            profilePic ||
+            "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
+          }
           width={24}
           height={24}
           className="mr-4 w-8 h-8 rounded-full"

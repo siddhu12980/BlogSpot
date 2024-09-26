@@ -20,7 +20,7 @@ interface BlogPost {
   published: boolean;
   tag: string[];
   userId: string | null;
-  post_banner: string;
+  post_banner: string | null;
 }
 
 const Blog = () => {
@@ -41,7 +41,6 @@ const Blog = () => {
     })
       .then((response) => response.json())
       .then((datas) => {
-        console.log(datas.blog);
         setData(datas?.blog);
         setUser(datas?.user);
         setLoading(false);
@@ -68,7 +67,7 @@ const Blog = () => {
             {data?.post_banner && (
               <img
                 className="w-[60%] h-96 object-cover"
-                src={`${config.apiUrl}/image/${data?.post_banner}`}
+                src={data?.post_banner}
                 alt={data?.title}
               />
             )}

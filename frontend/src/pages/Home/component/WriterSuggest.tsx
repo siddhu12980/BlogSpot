@@ -36,7 +36,7 @@ const SuggestionCard = ({
 
 const WriterSuggest = ({ name, user_id, description,imageUrl }: SuggestionCardProps) => {
   return (
-    <div className="p-4 bg-white bg-opacity-45 ">
+    <div className="p-4 bg-white bg-opacity-45 border-b-2  border-l-2 shadow-md ">
       <SuggestionCard
         key={name}
         name={name}

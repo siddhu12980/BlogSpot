@@ -74,7 +74,6 @@ const Onboard = () => {
         const data = res["image"].url;
         const key = data.split("/").pop();
         console.log(`Image uploaded successfully: ${file.name}`);
-        console.log("Image key:", key);
 
         return key;
       } else {
@@ -112,7 +111,6 @@ const Onboard = () => {
       });
 
       if (response.ok) {
-        console.log("Profile completed successfully!");
         setError(""); // Clear the error if successful
       } else {
         const errorMessage = await response.text();

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { FiEdit } from "react-icons/fi";
+import {  FiEdit } from "react-icons/fi";
 import config from "../../utils/config";
 import { queryClient } from "../../App";
+import uploadImage from "../../helpers/uploder";
+import { toast, Toaster } from "sonner";
+import { MdDelete } from "react-icons/md";
 
 //add profile pic change feature
 interface UserProps {
@@ -20,9 +23,9 @@ interface UserProps {
     createdAt: string;
     rating: number;
     tag: string[];
-    post_banner: string;
+    post_banner: string | null;
   }[];
-  ProfileKEy: string;
+  ProfileKEy: string | null;
   Followed_user_Id: string[];
 }
 
@@ -30,7 +33,7 @@ interface FollowedUser {
   id: string;
   name: string;
   count: number;
-  profilePicKey: string;
+  profilePicKey: string | null;
 }
 
 export const Profile = ({
@@ -43,11 +46,39 @@ export const Profile = ({
   ProfileKEy,
   Followed_user_Id,
 }: UserProps) => {
-  const [profilePicUrl, setProfilePicUrl] = useState<string>("");
   const [followedUsers, setFollowedUsers] = useState<FollowedUser[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [newBio, setNewBio] = useState(description);
-  const [pp, setpp] = useState<File | null>(null);
+
+
+const handleSavePostDelete = async (id:string) => {
+  try{
+    const url = `${config.apiUrl}/api/v1/user/savedpost/${id}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    if (response.ok) {
+      toast.success("Post Deleted");
+    queryClient.invalidateQueries({ queryKey: ["savedPosts"] });
+
+    } else {
+      console.error("Failed to delete post:", response.statusText);
+      toast.error("Failed to delete post");
+    }
+  }
+  catch (error) {
+    console.error("Error deleting post:", error);
+  }
+
+}
+
+
+
 
   const handleEditClick = useCallback(() => {
     setIsEditing(true);
@@ -66,8 +97,7 @@ export const Profile = ({
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Bio updated successfully:", data);
+        toast.success("Bio updated successfully");
       } else {
         console.error("Failed to update bio:", response.statusText);
       }
@@ -90,10 +120,10 @@ export const Profile = ({
       });
 
       if (response.ok) {
-        console.log(await response.json());
-        console.log("Followed User");
+        toast.success("User followed  successfully");
       } else {
         console.error("Failed to follow user:", response.statusText);
+        toast.error("Failed to follow user");
       }
       queryClient.invalidateQueries({ queryKey: [] });
     } catch (error) {
@@ -141,95 +171,62 @@ export const Profile = ({
   ) => {
     if (event.target.files) {
       const selectedFile = event.target.files[0];
-      setpp(selectedFile);
 
-      console.log(selectedFile);
-      await handleSubmitProfile(pp || selectedFile);
+      console.log("selected Files", selectedFile);
+      await HandleProfileUpload(selectedFile);
     } else {
       console.log("No image changed");
     }
   };
 
-  const handleImageUpload = async (file: File) => {
-    const url =  `${config.apiUrl}/upload`;
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
-
-
-      if (response.ok) {
-
-        const res = await response.json();
-      console.log("Uploading image------------:");
-      console.log("res:",res); 
-
-        const data = res["image"].url;
-      console.log("Uploading image1------------:");
-
-        const key = data.split("/").pop();
-      console.log("Uploading image12------------:");
-
-        console.log(`Image uploaded successfully: ${file.name}`);
-        console.log("Image key:", key);
-      console.log("Uploading image13------------:");
-
-        return key;
-      } else {
-        console.error("Upload failed:", response.statusText);
-        return "";
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      return "";
-    }
-  };
-
-  const handleSubmitProfile = async (file: File) => {
-    if (!file) {
-      console.warn("No image selected.");
+  const HandleProfileUpload = async (file: File) => {
+    const userId = localStorage.getItem("userId") || "";
+    if (!userId) {
+      console.error("User not logged in");
+      window.location.href = "/signin";
       return;
     }
-
-    const key: string = await handleImageUpload(file);
-    console.log("Profile pic key:", key);
-
-    if (key) {
-      try {
-        const response = await fetch(`${config.apiUrl}/api/v1/user/profile`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ profilePicKey: key }),
-        });
-
-        if (response.ok) {
-          console.log("Profile updated successfully");
-          setProfilePicUrl(`${config.apiUrl}/image/${key}`);
-        } else {
-          console.error("Profile update failed:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error updating profile:", error);
+    uploadImage(file, userId, (imageUrl: string) => {
+      if (!imageUrl) {
+        toast.error("Image Upload Failed");
+        return;
       }
+
+      uploadProfileKey(imageUrl);
+    }, (errorMessage: string) => {
+      toast.error(errorMessage);
     }
-    else{
-      console.error("Error updating profile: No key Found");
+    );
+  };
+
+  const uploadProfileKey = async (key: string) => {
+    const url = `${config.apiUrl}/api/v1/user/profile`;
+
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        profilePicKey: key,
+        userId: localStorage.getItem("userId"),
+      }),
+    });
+
+    const result = await response.json();
+
+
+    if (response.ok) {
+      toast.success("Profile Picture Updated");
+    } else {
+      toast.error("Profile Picture Update Failed");
+      console.error("Error:", result.error);
     }
   };
 
   useEffect(() => {
-    setProfilePicUrl(`${config.apiUrl}/image/${ProfileKEy}`);
     fillFollowerData();
   }, [ProfileKEy, fillFollowerData]);
 
@@ -238,7 +235,11 @@ export const Profile = ({
       <div className="flex flex-col items-center">
         <div className="relative w-24 h-24">
           <img
-            src={profilePicUrl || "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"}
+            src={
+              ProfileKEy != null
+                ? ProfileKEy
+                : "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
+            }
             alt={name}
             className="w-24 h-24 border border-x-cyan-100 rounded-full"
           />
@@ -322,8 +323,9 @@ export const Profile = ({
                 <div className="flex items-center">
                   <img
                     src={
-                      // `${config.apiUrl}/image/${user.profilePicKey}` ||
-                      "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
+                      user.profilePicKey != null
+                        ? user.profilePicKey
+                        : "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
                     }
                     alt={user.name}
                     className="w-8 h-8 rounded-full mr-2"
@@ -336,36 +338,53 @@ export const Profile = ({
           </ul>
         )}
       </div>
-      <div className="mt-8">
-        <h2 className="text-xl font-bold">Favourite Blogs</h2>
-        {lists.length == 0 ? (
-          <p className="pt-2"> No Favourite Blogs Saved</p>
+      <div className="mt-8 px-4 sm:px-6 lg:px-8   w-full">
+        <h2 className="text-2xl font-bold mb-4">Favourite Blogs</h2>
+
+        {lists.length === 0 ? (
+          <p className="pt-2 text-gray-500">No Favourite Blogs Saved</p>
         ) : (
-          <ul className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ul className="mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {lists.map((list) => (
               <li
                 key={list.id}
-                onClick={() => {
-                  window.location.href = `/blog/${list.id}`;
-                }}
-                className="bg-white rounded-md shadow-md p-4"
+               
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-4 cursor-pointer"
               >
+                <div className=" w-full">
                 <img
+
+onClick={() => {
+  window.location.href = `/blog/${list.id}`;
+}}
+
+                
                   src={
-                    list.post_banner != ""
-                      ? `${config.apiUrl}/image/${list.post_banner}`
-                      : "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+                    list.post_banner ||
+                    "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
                   }
                   alt={list.title}
-                  className="w-full h-32 object-cover rounded-md mb-2"
+                  className="w-full h-32 sm:h-40 object-cover rounded-md mb-3"
                 />
+                <div className=" flex flex-col md:flex-row  justify-between  ">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {list.title}
+                </h3>
 
-                <h3 className="text-lg font-bold">{list.title}</h3>
+
+                <MdDelete size={22} onClick={()=>{
+                  handleSavePostDelete(list.id)
+                }}   />
+
+                </div>
+                </div>
               </li>
             ))}
           </ul>
         )}
       </div>
+
+      <Toaster />
     </div>
   );
 };

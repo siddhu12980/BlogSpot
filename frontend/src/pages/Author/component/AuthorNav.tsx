@@ -1,10 +1,10 @@
 
-export const AuthorNav = () => {
+export const AuthorNav = ({name}:{name:string}) => {
   return (
     <nav className="bg-white shadow mt-5">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <a href="#" className="font-bold text-lg">
-          Brad Yonaka
+          {name}
         </a>
         <ul className="flex space-x-4">
           <li>

@@ -7,9 +7,11 @@ import { MdDelete } from "react-icons/md";
 import { queryClient } from "../../../App";
 
 interface data {
+  profilePicKey: string | null;
   user: string;
   title: string;
   blogContent: string;
+  post_banner: string;
   createdAt: string;
   authorId: string;
   id: string;
@@ -95,10 +97,14 @@ const BlogFeedItem = (data: data) => {
   }
 
   return (
-    <div className="flex flex-col mb-4 p-4 bg-white  ">
+    <div className="flex flex-col mb-4 p-4 bg-white border-b-2 shadow-lg animate-slidein300  ">
       <div className="flex items-center mb-2">
         <img
-          src="https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
+          src={
+            data.profilePicKey !== null
+              ? data.profilePicKey
+              : "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?cs=srgb&dl=pexels-simon-robben-55958-614810.jpg&fm=jpg"
+          }
           alt={data.user}
           className="w-10 h-10 rounded-full mr-2"
         />
@@ -141,7 +147,6 @@ const BlogFeedItem = (data: data) => {
                 </>
               ) : (
                 <>
-                  {console.log(data.authorId)}
 
                   <FaStar
                     onClick={() => handeleStar(data.id, data.authorId)}
@@ -165,7 +170,11 @@ const BlogFeedItem = (data: data) => {
           </div>
         </div>
         <img
-          src="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+          // src="https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+          src={
+            data.post_banner ||
+            "https://miro.medium.com/v2/resize:fit:1200/1*y6C4nSvy2Woe0m7bWEn4BA.png"
+          }
           alt="Blog Image"
           className="lg:w-2/5 w-full h-40 lg:h-20 rounded-md object-cover"
         />

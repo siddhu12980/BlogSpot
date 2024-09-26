@@ -16,7 +16,6 @@ const RecommendedTopics = () => {
 
   const handleTopicClick = (topic: topicType) => {
     setSelectedTopic(topic);
-    console.log(selectedTopic);
   };
 
   return (

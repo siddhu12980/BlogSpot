@@ -41,10 +41,10 @@ export const Homepage = () => {
   };
 
   useEffect(() => {
-    if(localStorage.getItem("token") === null) {
+    if (localStorage.getItem("token") === null) {
       window.location.href = "/signin";
     }
-    
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -78,9 +78,6 @@ export const Homepage = () => {
           nameResponse.json(),
         ]);
 
-        console.log("All Data", allData);
-        console.log("Top Data", topData);
-        console.log("Name Data", nameData);
 
         setData(allData);
         setTopData(topData);
@@ -96,7 +93,6 @@ export const Homepage = () => {
   }, [refresh]);
 
   const transformedData = useMemo(() => {
-    console.log(data);
     if (!data || data.length === 0) return [];
     return data.map((item) => ({
       id: item[0].id,
@@ -163,7 +159,7 @@ export const Homepage = () => {
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
         <div className="bg-white h-full w-full lg:w-[80%] lg:mx-auto lg:pl-[8%] lg:pr-[2%]">
           <div className="py-5">
-            <nav className="bg-white text-sm font-normal text-black p-2 sticky top-0">
+            <nav className="bg-white border-b-2 pb-4 shadow-md text-sm font-normal text-black p-2 sticky top-0">
               <ul className="flex justify-evenly">
                 <li>
                   <FaPlus onClick={() => setRealData(transformedData)} />
@@ -171,6 +167,7 @@ export const Homepage = () => {
                 <li onClick={() => setRefresh(!refresh)}>All</li>
                 {Topic_list.map((topic, index) => (
                   <li
+                    className=" cursor-pointer"
                     onClick={() => fetchPostsByTopic(topic.toLowerCase())}
                     key={index}
                   >
@@ -191,6 +188,8 @@ export const Homepage = () => {
             ) : (
               realData.map((item, index) => (
                 <BlogFeedItem
+                  profilePicKey={item.profilePicKey}
+                  post_banner={item.post_banner}
                   key={index}
                   id={item.post_id}
                   authorId={item.id}
@@ -206,8 +205,8 @@ export const Homepage = () => {
         <div className="bg-white py-5 w-full lg:w-[80%] lg:mx-auto lg:pr-[8%] lg:pl-[2%] hidden lg:block">
           <div className="flex flex-col">
             <div>
-              <h1>Top Blogs</h1>
-              <div>
+              <h1 className="  text-2xl pb-4">Top Blogs</h1>
+              <div className="flex flex-col gap-4">
                 {loading ? (
                   <div className="flex flex-col gap-4">
                     <BlogSidebarSkeleton />
@@ -216,13 +215,13 @@ export const Homepage = () => {
                 ) : (
                   realTopData.map((item, index) => (
                     <BlogSidebar
-                      user_id={item.id}
+                    profilePic={item.profilePicKey}
+                                          user_id={item.id}
                       post_id={item.post_id}
                       key={index}
                       username={item.name}
                       title={item.title}
                       book={item.about}
-                      // profilePic={`${config.apiUrl}/image/${item?.profilePicKey}`}
                     />
                   ))
                 )}
@@ -237,7 +236,7 @@ export const Homepage = () => {
           </div>
           <h2 className="text-xl font-bold mb-4 p-4">Who to follow</h2>
 
-          <div>
+          <div className=" flex flex-col gap-4">
             {loading ? (
               <div className="flex flex-col gap-4">
                 <WriterSuggestSkeleton />
@@ -258,8 +257,11 @@ export const Homepage = () => {
                   <WriterSuggest
                     key={index}
                     name={item!.name}
-                    // imageUrl={`${config.apiUrl}/image/${item?.profilePicKey}`}
-                    imageUrl="https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
+                    imageUrl={
+                      item?.profilePicKey != null
+                        ? item?.profilePicKey
+                        : "https://cdn.vectorstock.com/i/500p/53/42/user-member-avatar-face-profile-icon-vector-22965342.jpg"
+                    }
                     description={item?.about}
                     user_id={item?.id || ""}
                   />

@@ -5,6 +5,9 @@ import { Link } from "react-router-dom";
 import config from "../../utils/config";
 import { toast, Toaster } from "sonner";
 import { IoIosAddCircleOutline } from "react-icons/io";
+import uploadImage from "../../helpers/uploder";
+
+const Topic_list = ["science", "programming", "arts", "technology"];
 
 interface Data {
   id: string;
@@ -16,6 +19,18 @@ interface Data {
 export const CreateBlog = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [post_banner, setpost_banner] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); // State for selected tags
+
+  const handleTagClick = (tag: string) => {
+
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag) // Remove tag if already selected
+        : [...prevTags, tag] // Add tag if not selected
+    );
+
+  };
 
   const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -43,15 +58,18 @@ export const CreateBlog = () => {
       body: JSON.stringify({
         title,
         content,
+        post_banner,
+        tag: selectedTags
       }),
     })
       .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
+      .then(() => {
         toast.success("Post Created  SucessFully");
       })
-      .catch((error) => console.error("Error:", error));
-    toast.error("Error While Creating Post");
+      .catch((error) => {
+        console.error("Error:", error);
+        toast.error("Error While Creating Post");
+      });
   };
 
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -74,9 +92,24 @@ export const CreateBlog = () => {
       .catch((error) => console.error("Error:", error));
   }, []);
 
+  const handelPostPicUpload = async (file: File) => {
+    const userId = ((await localStorage.getItem("userId")) as string) || "";
 
- 
+    uploadImage(file, userId, (imageUrl: string ) => {
+      setpost_banner(imageUrl);
+      toast.success("Post Image Uploaded");
+    }, (errorMessage: string) => {
+      toast.error(errorMessage);
+    }
+    );
+  };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const file = event.target.files[0];
+      handelPostPicUpload(file);
+    }
+  };
 
   return (
     <>
@@ -97,8 +130,7 @@ export const CreateBlog = () => {
               >
                 Publish
               </button>
-              <div className=" mr-4 py-1 ">
-              </div>
+              <div className=" mr-4 py-1 "></div>
               <div className=" mr-4 py-1">
                 <IoNotificationsOutline size={30} />
               </div>
@@ -111,18 +143,19 @@ export const CreateBlog = () => {
         </nav>
       </div>
       <div className="h-screen w-full bg-white flex justify-center items-start">
-        <div className="w-3/5 flex flex-col   overflow-y-auto">
-          <div className="p-3">
+        <div className=" flex flex-row justify-between ">
+
+        <div className="w-3/5 flex flex-col    overflow-y-auto">
+          <div className="p-3 ">
             <form onSubmit={handleSubmit} className="">
               <div className="flex items-center">
                 <div className="relative inline-block">
-                  <button
-                    className="py-2 text-slate-400"
-                  >
+                  <button className="py-2 text-slate-400">
                     <IoIosAddCircleOutline size={44} />
                   </button>
                   <input
                     type="file"
+                    onChange={handleFileChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </div>
@@ -134,7 +167,13 @@ export const CreateBlog = () => {
                   className="w-full p-4 pl-10 text-5xl focus:outline-none outline-none text-gray-800"
                 />
               </div>
+
+             
+          
+
+
             </form>
+            
           </div>
           <div className="flex-1 p-4">
             <textarea
@@ -147,6 +186,33 @@ export const CreateBlog = () => {
               style={{ height: 200, overflowY: "hidden" }}
             />
           </div>
+        </div>
+
+        <div className="1/5  mt-5 ">
+                <h3 className="text-lg font-bold p-2">Select Tags:</h3>
+                <div className="flex flex-col ">
+                  {Topic_list.map((tag) => (
+                    <span
+                      key={tag}
+                      onClick={() => handleTagClick(tag)}
+                      className={`cursor-pointer px-3 py-1  hover:bg-gray-300 rounded-lg mr-2 mb-2 ${
+                        selectedTags.includes(tag)
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-200 text-gray-800"
+                      }
+
+                      
+                      
+                      `}
+
+
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
         </div>
         <Toaster />
       </div>

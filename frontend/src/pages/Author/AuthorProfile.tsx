@@ -8,6 +8,7 @@ import Profile from "../Profile/Profile";
 import BlogFeedItemSkeleton from "../Home/skeleton/BlogFeedItemSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { AuthorData, SavedPostData } from "../../types/interfaces";
+import { toast, Toaster } from "sonner";
 
 interface BlogData {
   authorId: string;
@@ -32,13 +33,10 @@ const fetchAuthorData = async (id: string) => {
 
   const result = await response.json();
 
-  console.log("author details", result);
-
   return result;
 };
 
 const fetchSavedPosts = async (userId: string) => {
-  console.log("Fetching saved posts for user", userId);
   const response = await fetch(`${config.apiUrl}/api/v1/blog/saved-posts`, {
     method: "POST",
     headers: {
@@ -55,10 +53,9 @@ const fetchSavedPosts = async (userId: string) => {
   const res = await response.json();
 
   if (!res || !res.savedPosts) {
-    console.log("No saved posts found.");
+    toast.error("No saved posts found.");
     return [];
   }
-  console.log(" transformed Data ", res.savedPosts.savedPosts);
 
   const transformedData = res.savedPosts.savedPosts.map((post: BlogData) => ({
     ...post,
@@ -83,7 +80,7 @@ const fetchFollowedUsers = async () => {
   const res = await response.json();
 
   if (!res || !res.followedUsers) {
-    console.log("No followed users found.");
+    toast.error("No followed users found.");
     return [];
   }
 
@@ -91,7 +88,6 @@ const fetchFollowedUsers = async () => {
     (user: { followingId: string }) => user.followingId
   );
 
-  console.log("Followed Users", data);
   return data;
 };
 
@@ -148,7 +144,6 @@ export const AuthorProfile = () => {
     <>
       <NavBar
         onSearch={() => {
-          console.log("No Search");
         }}
       />
       <div className="w-full bg-white flex flex-col lg:flex-row justify-center items-start">
@@ -159,9 +154,10 @@ export const AuthorProfile = () => {
               <>
                 <AuthorComponent
                   id={id || ""}
+                  authorBanner = {authorData.author.bannerPicKey}
                   name={authorData.author.name || ""}
                 />
-                <AuthorNav />
+                <AuthorNav name={authorData.author.name} />
               </>
             )}
           </div>
@@ -170,6 +166,8 @@ export const AuthorProfile = () => {
             <div className="mt-8">
               {authorData.posts.map((item) => (
                 <BlogFeedItem
+                profilePicKey={authorData.author.profilePicKey}
+                post_banner={item.post_banner}
                   key={item.id}
                   id={item.id}
                   authorId={item.authorId}
@@ -188,7 +186,7 @@ export const AuthorProfile = () => {
             {authorData.author && (
               <Profile
                 Followed_user_Id={followedUsersData}
-                ProfileKEy=""
+                ProfileKEy={authorData.author.profilePicKey}
                 id={id}
                 name={authorData.author.name || "Unknown"}
                 followers={followedUsersData.length}
@@ -199,6 +197,7 @@ export const AuthorProfile = () => {
             )}
           </div>
         </div>
+        <Toaster />
       </div>
     </>
   );
