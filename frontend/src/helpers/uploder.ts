@@ -3,7 +3,6 @@ import convertToBase64 from "../utils/converter";
 
 const uploadImage = async (
     file: File,
-    userId: string,
     uploadCallback: (imageUrl: string) => void,
     errorCallback: (errorMessage: string) => void 
 ) => {
