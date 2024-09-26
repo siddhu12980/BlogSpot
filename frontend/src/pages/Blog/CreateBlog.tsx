@@ -93,9 +93,7 @@ export const CreateBlog = () => {
   }, []);
 
   const handelPostPicUpload = async (file: File) => {
-    const userId = ((await localStorage.getItem("userId")) as string) || "";
-
-    uploadImage(file, userId, (imageUrl: string ) => {
+    uploadImage(file, (imageUrl: string ) => {
       setpost_banner(imageUrl);
       toast.success("Post Image Uploaded");
     }, (errorMessage: string) => {

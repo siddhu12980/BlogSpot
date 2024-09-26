@@ -186,7 +186,7 @@ const handleSavePostDelete = async (id:string) => {
       window.location.href = "/signin";
       return;
     }
-    uploadImage(file, userId, (imageUrl: string) => {
+    uploadImage(file, (imageUrl: string) => {
       if (!imageUrl) {
         toast.error("Image Upload Failed");
         return;

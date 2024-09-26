@@ -5,8 +5,7 @@ import uploadImage from "../../../helpers/uploder";
 export const AuthorComponent = ({ id, name,authorBanner }: { id: string; name: string,authorBanner:string | null }) => {
 
   const handleBannerPicUpload = async (file: File) => {
-    const userId = localStorage.getItem("userId") || "";
-    uploadImage(file, userId,(imageUrl: string) => {
+    uploadImage(file,(imageUrl: string) => {
       uploadBannerKey(imageUrl);
     }, (errorMessage: string) => {
       toast.error(errorMessage);
