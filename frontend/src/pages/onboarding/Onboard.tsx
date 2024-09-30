@@ -56,7 +56,7 @@ const Onboard = () => {
   };
 
   const handleImageUpload = async (file: File) => {
-    const url = `${config.apiUrl}/upload`;
+    const url = `${config.apiUrl}/api/v1/upload`;
     const formData = new FormData();
     formData.append("file", file);
 

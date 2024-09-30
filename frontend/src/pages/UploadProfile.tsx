@@ -10,7 +10,7 @@ interface ProfilePictureUploadProps {
 const UploadProfile: React.FC = () => {
   const navigate = useNavigate();
   const handleImageUpload = async (file: File) => {
-    const url = `${apiUrl.apiUrl}/upload`;
+    const url = `${apiUrl.apiUrl}/api/v1/upload`;
     const formData = new FormData();
     formData.append("file", file);
 
