@@ -23,10 +23,12 @@ app.options('*', cors( {
   origin: '*',
 } )); 
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 
 const config = {
-  cloud_name: process.env.CLOUDINARY_NAME,
+  cloud_name:"dq3oizrkk",
   api_key: process.env.CLOUDINARY_API,
   api_secret: process.env.CLOUDINARY_SECRET
 }
@@ -37,6 +39,14 @@ app.get("/", (req: Request, res: Response) => {
     msg: "healthy",
   });
 });
+
+
+app.post("/test-upload", (req: Request, res: Response) => {
+  console.log("Test upload route hit");
+  console.log("Request body:", req.body);
+  res.json({ message: "Test upload route working" });
+});
+
 
 
 app.post("/upload", async (req: Request, res: Response) => {
@@ -51,7 +61,7 @@ app.post("/upload", async (req: Request, res: Response) => {
 
     console.log('Received File (Base64):');
 
-    cloudinary.config(config);
+    await cloudinary.config(config);
 
     console.log("Cloudinary Configured");
 
@@ -68,7 +78,7 @@ app.post("/upload", async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error("Error uploading image:", error);
-    res.status(500).json({ message: "Failed to upload image", error });
+    res.status(500).json({ message: "Failed to upload image Backend", error });
   }
 });
 
@@ -83,4 +93,10 @@ app.use("/api/v1/blog", authMiddleware, blogRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log('Defined routes:');
+  app._router.stack.forEach((r: any) => {
+    if (r.route && r.route.path) {
+      console.log(`${Object.keys(r.route.methods)} ${r.route.path}`);
+    }
+  });
 });
