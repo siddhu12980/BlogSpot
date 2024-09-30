@@ -10,13 +10,19 @@ import { authMiddleware } from './middleware/auth_middelware';
 import { v2 as cloudinary } from 'cloudinary';
 
 
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors())
+app.use(cors({
+  origin: '*', 
+}));
+
+app.options('*', cors( {
+  origin: '*',
+} )); 
+
 app.use(express.json());
 
 const config = {
@@ -45,7 +51,7 @@ app.post("/upload", async (req: Request, res: Response) => {
 
     console.log('Received File (Base64):');
 
-     cloudinary.config(config);
+    cloudinary.config(config);
 
     console.log("Cloudinary Configured");
 
