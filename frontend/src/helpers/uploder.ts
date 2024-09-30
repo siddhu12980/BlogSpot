@@ -13,7 +13,7 @@ const uploadImage = async (
         const base64File = await convertToBase64(file);
         console.log("Converted file to base64:", base64File.substring(0, 50) + "..."); 
 
-        const url = `${config.apiUrl}/upload`;
+        const url = `${config.apiUrl}/api/v1/upload`;
         console.log("API URL for upload:", url);
 
         const response = await fetch(url, {
