@@ -14,7 +14,7 @@ import uploadRoutes from './routes/upload/upload_routes';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3010;
 
 app.use(cors({
   origin: '*', 
