@@ -17,12 +17,14 @@ const app = express();
 const PORT = process.env.PORT || 3010;
 
 app.use(cors({
-  origin: '*', 
+  origin: '*',
 }));
 
-app.options('*', cors( {
+app.options('*', cors({
   origin: '*',
-} )); 
+}));
+
+
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
