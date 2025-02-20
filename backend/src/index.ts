@@ -34,6 +34,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.get("/", (req: Request, res: Response) => {
   res.json({
     msg: "healthy",
+    path: req.path,
   });
 });
 

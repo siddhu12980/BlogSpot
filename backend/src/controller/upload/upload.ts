@@ -31,19 +31,20 @@ export const uploder = async (req: Request, res: Response) => {
 
         console.log("uploaded Result", uploadResult.secure_url);
 
-        res.json({
+        return res.json({
             msg: "Image uploaded successfully",
             imageUrl: uploadResult.secure_url,
         });
 
+
     } catch (error) {
         console.error("Error uploading image:", error);
-        res.status(500).json({ message: "Failed to upload image Backend", error });
+       return res.status(500).json({ message: "Failed to upload image Backend", error });
     }
 }
 
 export const test = async (req: Request, res: Response) => {
     console.log("Test upload route hit");
     console.log("Request body:", req.body);
-    res.json({ message: "Test upload route working" });
+    return res.json({ message: "Test upload route working" });
 }

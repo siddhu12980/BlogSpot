@@ -75,6 +75,7 @@ const Signin = () => {
           }
         })
         .catch((error) => {
+          console.log(error);
           setErrors({ password: "Invalid email or password" });
 
           toast.error("Invalid email or password");
